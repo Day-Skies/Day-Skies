@@ -1,0 +1,12 @@
+# Live-data smoke: launch without WEATHER_MOCK so the app fetches real Open-Meteo data, wait for the
+# forecast to arrive (the loaded hero only mounts once data lands), and screenshot it.
+#
+#     day launch -p macos-appkit --script scripts/live-check.yaml
+name: day-skies-live
+description: Verify the real Open-Meteo fetch populates the UI (no mock).
+flow:
+  - wait_for: { id: nav }
+  - wait_for: { id: hero-temp }
+  - assert_visible: { id: hourly }
+  - assert_visible: { id: ten-day }
+  - screenshot: live-san-francisco

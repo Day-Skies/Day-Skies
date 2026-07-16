@@ -1,0 +1,62 @@
+[package]
+name = "day-skies"
+version = "0.1.0"
+edition = "2024"
+# Generate typed resource + localization constants (`res::str::…`) from `resource/` on every build.
+build = "build.rs"
+
+[features]
+# The default `mock` backend lets bare `cargo build` / rust-analyzer compile out of the box;
+# `day build` always passes `--no-default-features --features <backend>`, stripping it.
+default = ["mock"]
+appkit = ["day/appkit"]
+gtk = ["day/gtk"]
+qt = ["day/qt"]
+uikit = ["day/uikit"]
+widget = ["day/widget"]
+winui = ["day/winui"]
+arkui = ["day/arkui"]
+mock = ["day/mock"]
+
+# rlib for the desktop bin; the mobile pipeline requests the iOS staticlib / Android cdylib
+# explicitly via `cargo rustc --crate-type` (a desktop cdylib blows past the windows-gnu PE
+# export cap).
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+# The day framework resolves from git (the crates aren't on crates.io yet). Local development
+# against a checkout goes through the gitignored .cargo/config.toml [patch] — see README.
+day = { git = "https://github.com/daybrite/day.git" }
+# Settings page: native segmented picker (day build unions its per-backend renderer features;
+# no arkui backend — the settings page cfg-gates a toggle there) + persistent preferences.
+day-piece-picker = { git = "https://github.com/daybrite/day.git" }
+day-part-prefs = { git = "https://github.com/daybrite/day.git" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Live HTTPS weather fetch on every platform.
+#
+# Non-OHOS (desktop, iOS, Android): ureq's default rustls + `ring` backend — `ring`'s native crypto
+# is fast and cross-compiles fine here (via cargo-ndk on Android).
+[target.'cfg(not(target_env = "ohos"))'.dependencies]
+ureq = "3"
+
+# OHOS: `ring`'s C crypto does not cross-compile to OpenHarmony (no OHOS sysroot support), so use a
+# pure-Rust rustls provider instead. Slower, but OHOS is the only target that needs it.
+[target.'cfg(target_env = "ohos")'.dependencies]
+ureq = { version = "3", default-features = false, features = [
+    "rustls-no-provider",
+    "rustls-webpki-roots",
+    "gzip",
+] }
+rustls-rustcrypto = "0.0.2-alpha"
+
+[build-dependencies]
+day-build = { git = "https://github.com/daybrite/day.git" }
+
+[[bin]]
+name = "day-skies"
+path = "src/main.rs"
+
+[workspace]

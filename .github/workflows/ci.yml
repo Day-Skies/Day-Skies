@@ -1,0 +1,32 @@
+# Day Skies CI — build, exercise, and package the app on every push, manual trigger, or
+# semantic-version tag, via the shared daybrite/actions workflow.
+#
+# Every run builds all 7 shipping platform-toolkit pairs, runs the mock-data walkthrough in all
+# four locales (screenshots land in the per-target artifacts), and packs a distributable. On a
+# vX.Y.Z tag the packages and screenshot zips are attached to the GitHub release.
+#
+# WEATHER_MOCK=1 keeps the dayscript runs deterministic — fixed per-city fixtures instead of the
+# live Open-Meteo fetch, so assertions and screenshots are stable across runs and locales.
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # release-asset upload on tag builds
+
+jobs:
+  app:
+    uses: daybrite/actions/.github/workflows/build-day-app.yml@main
+    secrets: inherit
+    with:
+      targets: windows-winui, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-widget, ohos-arkui
+      # main until the next day release: the flatpak/MSIX default-icon fallback (needed by apps
+      # without resource/icons/, like this one) is newer than the latest published CLI.
+      day-version: main
+      scripts: scripts/weather.yaml
+      launch-env: WEATHER_MOCK=1
+      locales: en fr ar zh-CN
