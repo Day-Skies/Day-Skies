@@ -80,7 +80,7 @@ pub fn weather_page(place: Place, state: Signal<WeatherState>) -> AnyPiece {
     let content = column((
         when(
             move || matches!(state.get(), WeatherState::Loading),
-            || loading_view(),
+            loading_view,
         ),
         when(
             move || matches!(state.get(), WeatherState::Failed(_)),

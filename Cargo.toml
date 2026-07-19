@@ -32,25 +32,11 @@ day = { git = "https://github.com/daybrite/day.git" }
 # no arkui backend — the settings page cfg-gates a toggle there) + persistent preferences.
 day-piece-picker = { git = "https://github.com/daybrite/day.git" }
 day-part-prefs = { git = "https://github.com/daybrite/day.git" }
+# The platform HTTP stack (URLSession / HttpURLConnection / WinHTTP; ureq+rustls only on
+# Linux/OHOS) — system proxies, VPN, and TLS come from the OS, no TLS library in the app.
+day-part-http = { git = "https://github.com/daybrite/day.git" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
-# Live HTTPS weather fetch on every platform.
-#
-# Non-OHOS (desktop, iOS, Android): ureq's default rustls + `ring` backend — `ring`'s native crypto
-# is fast and cross-compiles fine here (via cargo-ndk on Android).
-[target.'cfg(not(target_env = "ohos"))'.dependencies]
-ureq = "3"
-
-# OHOS: `ring`'s C crypto does not cross-compile to OpenHarmony (no OHOS sysroot support), so use a
-# pure-Rust rustls provider instead. Slower, but OHOS is the only target that needs it.
-[target.'cfg(target_env = "ohos")'.dependencies]
-ureq = { version = "3", default-features = false, features = [
-    "rustls-no-provider",
-    "rustls-webpki-roots",
-    "gzip",
-] }
-rustls-rustcrypto = "0.0.2-alpha"
 
 [build-dependencies]
 day-build = { git = "https://github.com/daybrite/day.git" }

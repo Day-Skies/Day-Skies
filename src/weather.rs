@@ -4,9 +4,9 @@
 //! into the small `Weather` model the UI renders. A deterministic mock path (env `WEATHER_MOCK=1`)
 //! gives stable data so DayScript screenshots are reproducible.
 //!
-//! Networking works on every platform. ureq's default `ring` TLS backend does not cross-compile to
-//! OHOS (its C crypto needs an OHOS sysroot ring doesn't support), so we use a pure-Rust rustls
-//! provider (rustls-rustcrypto) — pure Rust builds identically on desktop, iOS, Android, and OHOS.
+//! Networking goes through `day-part-http` (day's docs/http.md): the platform HTTP stack on
+//! macOS, iOS, Android, and Windows (system proxies, VPN, and TLS come from the OS), with a
+//! bundled ureq+rustls fallback on Linux and OHOS — this app ships no TLS code of its own.
 
 use serde::Deserialize;
 
@@ -364,30 +364,19 @@ mod net {
     use super::{ApiResp, Place, Weather, forecast_url, process};
     use std::time::Duration;
 
-    /// Blocking HTTPS GET + parse, on every platform. MUST run off the UI thread. On OHOS (where
-    /// ureq's default `ring` provider can't build) it supplies a pure-Rust rustls provider; every
-    /// other platform uses ureq's fast native `ring` backend.
+    /// Blocking HTTPS GET + parse via the platform HTTP stack. MUST run off the UI thread.
     pub fn fetch(place: Place, host: &str) -> Result<Weather, String> {
         let url = forecast_url(place, host);
-        let cfg = ureq::get(&url).config();
-        #[cfg(target_env = "ohos")]
-        let cfg = cfg.tls_config(
-            ureq::tls::TlsConfig::builder()
-                .unversioned_rustls_crypto_provider(std::sync::Arc::new(
-                    rustls_rustcrypto::provider(),
-                ))
-                .build(),
-        );
-        let mut resp = cfg
-            .timeout_global(Some(Duration::from_secs(15)))
-            .build()
-            .call()
-            .map_err(|e| format!("request failed: {e}"))?;
-        let body = resp
-            .body_mut()
-            .read_to_string()
-            .map_err(|e| format!("read failed: {e}"))?;
-        let api: ApiResp = serde_json::from_str(&body).map_err(|e| format!("parse failed: {e}"))?;
+        let resp = day_part_http::fetch(
+            &day_part_http::Request::get(url).timeout(Duration::from_secs(15)),
+        )
+        .map_err(|e| format!("request failed: {e}"))?;
+        // day-part-http treats 4xx/5xx as responses, not errors — surface them here.
+        if !(200..300).contains(&resp.status) {
+            return Err(format!("request failed: HTTP {}", resp.status));
+        }
+        let api: ApiResp =
+            serde_json::from_slice(&resp.body).map_err(|e| format!("parse failed: {e}"))?;
         Ok(process(api))
     }
 }

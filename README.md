@@ -74,7 +74,7 @@ and units flow through Fluent.
 
 - `src/lib.rs` — `root()` and the adaptive shell: a `selector` over cities (sidebar + detail on
   desktop, a list that pushes the detail on mobile) and the per-city reactive weather store.
-- `src/weather.rs` — the data layer: Open-Meteo fetch (`ureq`, all platforms), WMO weather-code
+- `src/weather.rs` — the data layer: Open-Meteo fetch (`day-part-http`, all platforms), WMO weather-code
   mapping, and the deterministic mock fixtures.
 - `src/ui.rs` — the weather screen: sky-gradient backdrop, hero, hourly strip, 10-day forecast with
   range bars, detail cards.
@@ -90,9 +90,9 @@ and units flow through Fluent.
 The app and the `day/` framework evolve in tandem — the sky gradient rides day's linear-gradient
 canvas support, added for this app. Current notes:
 
-- **Live networking runs on every platform.** The fetch uses `ureq` on a background thread. Desktop,
-  iOS, and Android use ureq's default rustls + `ring` backend; `ring`'s C crypto does not
-  cross-compile to OHOS, so OHOS uses a pure-Rust rustls provider (`rustls-rustcrypto`) instead.
+- **Live networking runs on every platform.** The fetch uses `day-part-http` on a background
+  thread: the platform HTTP stack on macOS, iOS, Android, and Windows (system proxies, VPN, and
+  TLS come from the OS), and a bundled ureq + rustls fallback on Linux and OHOS.
 - **Hourly strip doesn't scroll horizontally** (Day's `scroll` is vertical-only today; the internal
   layout already supports a horizontal axis). Round-2 plan: add an `hscroll` piece to `day/`.
 - **`ohos-arkui` compiles** (Rust cross-compile succeeds, TLS included) but packaging the `.hap`
