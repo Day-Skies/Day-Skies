@@ -76,10 +76,12 @@ and units flow through Fluent.
   desktop, a list that pushes the detail on mobile) and the per-city reactive weather store.
 - `src/weather.rs` — the data layer: Open-Meteo fetch (`day-part-http`, all platforms), WMO weather-code
   mapping, and the deterministic mock fixtures.
-- `src/ui.rs` — the weather screen: sky-gradient backdrop, hero, hourly strip, 10-day forecast with
-  range bars, detail cards.
+- `src/ui.rs` — the weather screen: sky-gradient backdrop, hero, hourly strip, a 10-day forecast
+  `grid` (content-sized columns, flexible range-bar column), and a 2-column detail-card `grid`
+  whose pressure card spans the full width.
 - `src/settings.rs` — the Settings form (unit picker + host field) and the persistent settings store.
-- `src/icons.rs` — original weather glyphs drawn with the canvas display list (no image assets).
+- `src/icons.rs` — original weather glyphs as declarative shape groups (`line`, `polygon`,
+  ellipses, rounded rects) — one canvas leaf per glyph, no image assets.
 - `locales/` — Fluent strings for en / fr / ar / zh-CN.
 - `scripts/` — DayScript UI tests.
 - `platform/` — the thin native host projects (Xcode / Gradle / hvigor) the mobile targets build
@@ -93,8 +95,8 @@ canvas support, added for this app. Current notes:
 - **Live networking runs on every platform.** The fetch uses `day-part-http` on a background
   thread: the platform HTTP stack on macOS, iOS, Android, and Windows (system proxies, VPN, and
   TLS come from the OS), and a bundled ureq + rustls fallback on Linux and OHOS.
-- **Hourly strip doesn't scroll horizontally** (Day's `scroll` is vertical-only today; the internal
-  layout already supports a horizontal axis). Round-2 plan: add an `hscroll` piece to `day/`.
+- **Hourly strip doesn't scroll horizontally** yet. Day's `scroll` grew a `.horizontal()` mode;
+  the round-2 plan is to wire the strip to it instead of capping at 8 cells.
 - **`ohos-arkui` compiles** (Rust cross-compile succeeds, TLS included) but packaging the `.hap`
   needs the OpenHarmony command-line tools (`hvigor`/`ohpm`).
 - **`windows-winui`, `linux-gtk`, `linux-qt`** build on their native hosts in CI.

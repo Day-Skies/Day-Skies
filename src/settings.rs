@@ -4,7 +4,6 @@
 
 use crate::res;
 use day::prelude::*;
-use day_piece_picker::picker;
 use std::cell::OnceCell;
 
 /// The default forecast host; the settings page lets users point at an Open-Meteo-compatible

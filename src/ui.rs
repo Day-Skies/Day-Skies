@@ -210,6 +210,10 @@ fn ten_day(w: &Weather) -> AnyPiece {
     let wmin = w.daily.iter().map(|d| d.low).fold(f64::MAX, f64::min);
     let wmax = w.daily.iter().map(|d| d.high).fold(f64::MIN, f64::max);
 
+    // One grid row per day (docs/grid.md): the day, icon, precip, and temperature columns size
+    // to their widest cell, and the range bar's `grow_w` makes its column take the leftover
+    // width — no hand-tuned widths, and a plain `spacer()` keeps the precip column aligned on
+    // dry days.
     let rows: Vec<AnyPiece> = w
         .daily
         .iter()
@@ -218,15 +222,12 @@ fn ten_day(w: &Weather) -> AnyPiece {
                 label(format!("{}%", d.precip))
                     .font(Font::Caption)
                     .color(PRECIP)
-                    .width(40.0)
+                    .any()
             } else {
-                spacer().width(40.0)
+                spacer().any()
             };
-            row((
-                label(day_label(d.name))
-                    .font(Font::Body)
-                    .color(TEXT)
-                    .width(104.0),
+            grid_row((
+                label(day_label(d.name)).font(Font::Body).color(TEXT),
                 weather_icon(Glyph::of(d.family, true), 26.0),
                 precip,
                 {
@@ -234,7 +235,7 @@ fn ten_day(w: &Weather) -> AnyPiece {
                     label(move || settings::temp(l))
                         .font(Font::Body)
                         .color(TEXT2)
-                        .width(44.0)
+                        .grid_align(Alignment::Trailing)
                 },
                 range_bar(d.low, d.high, wmin, wmax),
                 {
@@ -242,12 +243,9 @@ fn ten_day(w: &Weather) -> AnyPiece {
                     label(move || settings::temp(h))
                         .font(Font::Body)
                         .color(TEXT)
-                        .width(44.0)
+                        .grid_align(Alignment::Trailing)
                 },
             ))
-            .spacing(8.0)
-            .align(VAlign::Center)
-            .padding(6.0)
             .any()
         })
         .collect();
@@ -255,7 +253,11 @@ fn ten_day(w: &Weather) -> AnyPiece {
     card(
         column((
             section_header(res::str::weather_10day()),
-            column(PieceVec(rows)).spacing(2.0),
+            grid(PieceVec(rows))
+                .column_spacing(8.0)
+                .row_spacing(12.0)
+                .align(Alignment::Leading)
+                .grow_w(),
         ))
         .spacing(10.0)
         .align(HAlign::Leading),
@@ -264,32 +266,32 @@ fn ten_day(w: &Weather) -> AnyPiece {
 }
 
 /// A temperature range bar: a faint full-width track with a warm-to-cool segment for this day's
-/// low→high mapped into the whole week's range (like Apple's forecast bars).
+/// low→high mapped into the whole week's range (like Apple's forecast bars). A size-aware shape
+/// group: the segment positions derive from the laid-out width, in one canvas leaf.
 fn range_bar(low: f64, high: f64, wmin: f64, wmax: f64) -> AnyPiece {
-    canvas(move |d, size| {
-        if size.width <= 0.0 {
-            return;
+    shape_group_fn(move |size| {
+        if size.width <= 0.0 || size.height <= 0.0 {
+            return Vec::new();
         }
-        let h = 6.0;
-        let y = size.height / 2.0 - h / 2.0;
-        d.fill(
-            Shape::RoundedRect(Rect::new(0.0, y, size.width, h), h / 2.0),
-            Color::rgba(1.0, 1.0, 1.0, 0.22),
-        );
+        let h = 6.0 / size.height;
+        let y = 0.5 - h / 2.0;
         let span = (wmax - wmin).max(1.0);
-        let x0 = ((low - wmin) / span * size.width).clamp(0.0, size.width);
-        let x1 = ((high - wmin) / span * size.width).clamp(0.0, size.width);
-        let w = (x1 - x0).max(6.0);
+        let x0 = ((low - wmin) / span).clamp(0.0, 1.0);
+        let x1 = ((high - wmin) / span).clamp(0.0, 1.0);
+        let w = (x1 - x0).max(6.0 / size.width);
         // Cooler at the low end, warmer at the high end — approximate with a two-stop split.
         let mid = x0 + w / 2.0;
-        d.fill(
-            Shape::RoundedRect(Rect::new(x0, y, mid - x0, h), h / 2.0),
-            RANGE_COOL,
-        );
-        d.fill(
-            Shape::RoundedRect(Rect::new(mid, y, x0 + w - mid, h), h / 2.0),
-            RANGE_WARM,
-        );
+        vec![
+            rounded_rectangle(3.0)
+                .fill(Color::rgba(1.0, 1.0, 1.0, 0.22))
+                .at(0.0, y, 1.0, h),
+            rounded_rectangle(3.0)
+                .fill(RANGE_COOL)
+                .at(x0, y, mid - x0, h),
+            rounded_rectangle(3.0)
+                .fill(RANGE_WARM)
+                .at(mid, y, x0 + w - mid, h),
+        ]
     })
     .height(22.0)
     .grow_w()
@@ -301,38 +303,27 @@ fn detail_grid(w: &Weather) -> AnyPiece {
     let wind = format!("{} km/h", w.wind_kmh.round() as i64);
     let uv = format!("{}", w.uv.round() as i64);
     let pressure = format!("{} hPa", w.pressure.round() as i64);
-    column((
-        detail_row(
-            res::str::detail_feels(),
-            move || settings::temp(feels_c),
-            res::str::detail_humidity(),
-            humidity,
-        ),
-        detail_row(res::str::detail_wind(), wind, res::str::detail_uv(), uv),
-        detail_row(
-            res::str::detail_sunrise(),
-            w.sunrise.clone(),
-            res::str::detail_sunset(),
-            w.sunset.clone(),
-        ),
+    // A real 2-column grid (docs/grid.md): every card grows, so both columns split the width
+    // evenly, and the pressure card — a bare child outside any row — spans the full grid.
+    grid((
+        grid_row((
+            detail_card(res::str::detail_feels(), move || settings::temp(feels_c)),
+            detail_card(res::str::detail_humidity(), humidity),
+        )),
+        grid_row((
+            detail_card(res::str::detail_wind(), wind),
+            detail_card(res::str::detail_uv(), uv),
+        )),
+        grid_row((
+            detail_card(res::str::detail_sunrise(), w.sunrise.clone()),
+            detail_card(res::str::detail_sunset(), w.sunset.clone()),
+        )),
         detail_card(res::str::detail_pressure(), pressure),
     ))
     .spacing(12.0)
+    .align(Alignment::TopLeading)
     .grow_w()
     .any()
-}
-
-fn detail_row<M1, M2>(
-    t1: LocalizedText,
-    v1: impl IntoText<M1>,
-    t2: LocalizedText,
-    v2: impl IntoText<M2>,
-) -> AnyPiece {
-    row((detail_card(t1, v1), detail_card(t2, v2)))
-        .spacing(12.0)
-        .align(VAlign::Top)
-        .grow_w()
-        .any()
 }
 
 fn detail_card<M>(title: LocalizedText, value: impl IntoText<M>) -> AnyPiece {
