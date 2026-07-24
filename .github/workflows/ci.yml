@@ -23,7 +23,7 @@ jobs:
     uses: daybrite/actions/.github/workflows/build-day-app.yml@main
     secrets: inherit
     with:
-      targets: windows-winui, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-widget, ohos-arkui
+      targets: windows-winui, macos-appkit, linux-gtk, linux-qt, ios-uikit, android-mdc, ohos-arkui
       # main until the next day release: the flatpak/MSIX default-icon fallback (needed by apps
       # without resource/icons/, like this one) is newer than the latest published CLI.
       day-version: main

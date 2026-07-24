@@ -6,8 +6,9 @@
 use crate::icons::{Glyph, weather_icon};
 use crate::res;
 use crate::settings;
-use crate::weather::{DataSource, DayName, Family, Place, Weather, WeatherState};
+use crate::weather::{DataSource, DayName, Family, Place, Weather};
 use day::prelude::*;
+use day::reactive::Load;
 
 /// Map the condition family to its generated localization constant (compile-checked keys).
 fn condition_label(f: Family) -> LocalizedText {
@@ -75,27 +76,25 @@ pub fn sky(family: crate::weather::Family, is_day: bool) -> LinearGradient {
     LinearGradient::vertical(Color::hex(top), Color::hex(horizon))
 }
 
-/// The whole page for one place, driven by its reactive `WeatherState` signal.
-pub fn weather_page(place: Place, state: Signal<WeatherState>) -> AnyPiece {
+/// The whole page for one place, driven by its reactive `Load<Weather>` signal (docs/async.md).
+pub fn weather_page(place: Place, state: Signal<Load<Weather>>) -> AnyPiece {
     let content = column((
+        when(move || state.with(|s| s.is_loading()), loading_view),
         when(
-            move || matches!(state.get(), WeatherState::Loading),
-            loading_view,
-        ),
-        when(
-            move || matches!(state.get(), WeatherState::Failed(_)),
+            move || state.with(|s| s.error().is_some()),
             move || {
-                let msg = match state.get_untracked() {
-                    WeatherState::Failed(m) => m,
-                    _ => String::new(),
-                };
+                let msg = state
+                    .get_untracked()
+                    .error()
+                    .map(|e| e.to_string())
+                    .unwrap_or_default();
                 failed_view(msg)
             },
         ),
         when(
-            move || matches!(state.get(), WeatherState::Loaded(_)),
+            move || state.with(|s| s.is_ready()),
             move || match state.get_untracked() {
-                WeatherState::Loaded(w) => loaded_view(place, &w),
+                Load::Ready(w) => loaded_view(place, &w),
                 _ => spacer().any(),
             },
         ),
@@ -108,7 +107,7 @@ pub fn weather_page(place: Place, state: Signal<WeatherState>) -> AnyPiece {
     // backdrop stays fixed while the forecast scrolls over it.
     let backdrop = rectangle()
         .fill_linear(move || match state.get() {
-            WeatherState::Loaded(w) => sky(w.family, w.is_day),
+            Load::Ready(w) => sky(w.family, w.is_day),
             _ => LinearGradient::vertical(Color::hex(0x22304a), Color::hex(0x44546e)),
         })
         .grow();

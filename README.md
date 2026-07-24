@@ -12,8 +12,8 @@ route requests through their own proxy. Both persist across launches via day-par
 ## Platforms
 
 Declared shipping targets (`Day.toml`): `windows-winui`, `macos-appkit`, `linux-gtk`, `linux-qt`,
-`ios-uikit`, `android-widget`, `ohos-arkui`. On a macOS dev box the toolkits are exercised locally
-as `macos-appkit`, `macos-gtk`, `macos-qt`, `ios-uikit`, `android-widget`, and `ohos-arkui` (GTK/Qt
+`ios-uikit`, `android-mdc`, `ohos-arkui`. On a macOS dev box the toolkits are exercised locally
+as `macos-appkit`, `macos-gtk`, `macos-qt`, `ios-uikit`, `android-mdc`, and `ohos-arkui` (GTK/Qt
 are portable, so `macos-gtk`/`macos-qt` stand in for the Linux pairs).
 
 ## Day dependency
@@ -38,7 +38,7 @@ day launch -p macos-appkit                   # build + run (LIVE Open-Meteo data
 day launch -p macos-appkit -p macos-gtk -p macos-qt   # all three desktop toolkits
 day launch -p ios-uikit                      # needs a booted Simulator
 JAVA_HOME=$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home \
-  day launch -p android-widget               # needs JDK 21 + a running emulator/device
+  day launch -p android-mdc               # needs JDK 21 + a running emulator/device
 ```
 
 ### Deterministic / mock data

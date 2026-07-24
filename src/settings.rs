@@ -26,6 +26,9 @@ struct Store {
     unit: Signal<usize>,
     /// Host name as edited in the field (persisted + applied by the Save action).
     host: Signal<String>,
+    /// The host the fetches actually use — written ONLY by Save, so the weather `Resource`s
+    /// (which track [`host`]) refetch on Save, never per keystroke in the field.
+    applied_host: Signal<String>,
 }
 
 thread_local! {
@@ -46,6 +49,7 @@ fn with_store<R>(f: impl FnOnce(&Store) -> R) -> R {
                 let host = Signal::new(
                     day_part_prefs::get(PREF_HOST).unwrap_or_else(|| DEFAULT_HOST.to_string()),
                 );
+                let applied_host = Signal::new(host.get_untracked());
                 // The unit applies (and persists) immediately on selection; the reactive
                 // temperature labels re-render from the signal, no refetch needed (the model
                 // stays °C).
@@ -55,7 +59,11 @@ fn with_store<R>(f: impl FnOnce(&Store) -> R) -> R {
                         day_part_prefs::set(PREF_UNIT, if *new == 1 { "f" } else { "c" });
                     },
                 );
-                Store { unit, host }
+                Store {
+                    unit,
+                    host,
+                    applied_host,
+                }
             })
         }))
     })
@@ -84,9 +92,10 @@ pub fn temp_value(celsius: f64) -> i64 {
     v.round() as i64
 }
 
-/// The currently-applied forecast host (untracked — captured before background fetches).
-pub fn current_host() -> String {
-    let h = with_store(|s| s.host.get_untracked());
+/// The currently-applied forecast host — a TRACKED read of the Save-applied signal, so a
+/// weather `Resource` using it as its source refetches when Save applies a new host.
+pub fn host() -> String {
+    let h = with_store(|s| s.applied_host.get());
     let h = h.trim();
     if h.is_empty() {
         DEFAULT_HOST.to_string()
@@ -133,6 +142,7 @@ pub fn settings_page() -> AnyPiece {
             let host = host.trim();
             let host = if host.is_empty() { DEFAULT_HOST } else { host };
             host_sig.set(host.to_string());
+            with_store(|s| s.applied_host.set(host.to_string()));
             day_part_prefs::set(PREF_HOST, host);
             crate::reload_all();
         })

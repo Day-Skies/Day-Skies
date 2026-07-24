@@ -28,13 +28,17 @@ pub enum DataSource {
     Mock,
 }
 
-/// The reactive state a city's weather signal holds.
-#[derive(Clone, Debug)]
-pub enum WeatherState {
-    Loading,
-    Loaded(Weather),
-    Failed(String),
+/// A fetch/parse failure, displayable (`Error + Send + Sync` so it rides `Load::Failed`).
+#[derive(Debug)]
+pub struct WeatherError(pub String);
+
+impl std::fmt::Display for WeatherError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
+
+impl std::error::Error for WeatherError {}
 
 /// The processed model the UI renders — unit-agnostic values in °C / km/h / hPa.
 #[derive(Clone, Debug)]
@@ -217,15 +221,14 @@ fn weekday_index_offset(y: i64, m: i64, d: i64, offset: i64) -> u8 {
 // Live fetch + shared processing.
 // ---------------------------------------------------------------------------
 
-/// Resolve a place to a full `Weather`, blocking. MUST run off the UI thread.
-pub fn load(place: Place, host: &str) -> WeatherState {
+/// Resolve a place to a full `Weather`. Mock data resolves synchronously (the Resource
+/// eager-poll case); the live path awaits the platform fetch and parses on the UI thread — an
+/// Open-Meteo payload is tens of KB, so the parse cost there is negligible.
+pub async fn load(place: Place, host: String) -> Result<Weather, WeatherError> {
     if is_mock() {
-        return WeatherState::Loaded(mock(place));
+        return Ok(mock(place));
     }
-    match net::fetch(place, host) {
-        Ok(w) => WeatherState::Loaded(w),
-        Err(e) => WeatherState::Failed(e),
-    }
+    net::fetch(place, host).await.map_err(WeatherError)
 }
 
 /// Open-Meteo JSON, only the fields we consume.
@@ -364,12 +367,15 @@ mod net {
     use super::{ApiResp, Place, Weather, forecast_url, process};
     use std::time::Duration;
 
-    /// Blocking HTTPS GET + parse via the platform HTTP stack. MUST run off the UI thread.
-    pub fn fetch(place: Place, host: &str) -> Result<Weather, String> {
-        let url = forecast_url(place, host);
-        let resp = day_part_http::fetch(
-            &day_part_http::Request::get(url).timeout(Duration::from_secs(15)),
+    /// HTTPS GET + parse via the platform HTTP stack, await-style: `fetch_future` starts the
+    /// request immediately and its drop (a superseded or disposed Resource fetch) cancels it
+    /// where the platform can (docs/http.md's cancel matrix).
+    pub async fn fetch(place: Place, host: String) -> Result<Weather, String> {
+        let url = forecast_url(place, &host);
+        let resp = day_part_http::fetch_future(
+            day_part_http::Request::get(url).timeout(Duration::from_secs(15)),
         )
+        .await
         .map_err(|e| format!("request failed: {e}"))?;
         // day-part-http treats 4xx/5xx as responses, not errors — surface them here.
         if !(200..300).contains(&resp.status) {

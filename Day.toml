@@ -11,7 +11,7 @@ title = "Day Skies"
 build = 1
 # The 7 shipping platform-toolkit pairs. `windows-winui`, `linux-gtk`, and `linux-qt` build in CI
 # on their native hosts; on a macOS dev box we exercise the toolkits locally as `macos-appkit`,
-# `macos-gtk`, `macos-qt`, `ios-uikit`, `android-widget`, and `ohos-arkui` (GTK/Qt are portable, so
+# `macos-gtk`, `macos-qt`, `ios-uikit`, `android-mdc`, and `ohos-arkui` (GTK/Qt are portable, so
 # `macos-gtk`/`macos-qt` stand in for `linux-gtk`/`linux-qt`). `day build -p <target>` accepts any
 # host-buildable target regardless of this list.
 targets = [
@@ -20,7 +20,7 @@ targets = [
   "linux-gtk",
   "linux-qt",
   "ios-uikit",
-  "android-widget",
+  "android-mdc",
   "ohos-arkui",
 ]
 
