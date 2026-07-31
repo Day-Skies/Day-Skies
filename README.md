@@ -11,9 +11,10 @@ route requests through their own proxy. Both persist across launches via day-par
 
 ## Platforms
 
-Declared shipping targets (`Day.toml`): `windows-winui`, `macos-appkit`, `linux-gtk`, `linux-qt`,
-`ios-uikit`, `android-mdc`, `ohos-arkui`. On a macOS dev box the toolkits are exercised locally
-as `macos-appkit`, `macos-gtk`, `macos-qt`, `ios-uikit`, `android-mdc`, and `ohos-arkui` (GTK/Qt
+Declared shipping targets (`Day.toml`): `windows-xaml`, `macos-appkit`, `linux-gtk`, `linux-qt`,
+`ios-uikit`, `android-mdc`, `harmony-arkui`, `web-dom`. On a macOS dev box the toolkits are
+exercised locally as `macos-appkit`, `macos-gtk`, `macos-qt`, `ios-uikit`, `android-mdc`,
+`harmony-arkui`, and `web-dom` (GTK/Qt
 are portable, so `macos-gtk`/`macos-qt` stand in for the Linux pairs).
 
 ## Day dependency
@@ -92,20 +93,21 @@ and units flow through Fluent.
 The app and the `day/` framework evolve in tandem — the sky gradient rides day's linear-gradient
 canvas support, added for this app. Current notes:
 
-- **Live networking runs on every platform.** The fetch uses `day-part-http` on a background
-  thread: the platform HTTP stack on macOS, iOS, Android, and Windows (system proxies, VPN, and
-  TLS come from the OS), and a bundled ureq + rustls fallback on Linux and OHOS.
+- **Live networking runs on every platform.** The fetch goes through `day-part-http`: the
+  platform HTTP stack on macOS, iOS, Android, and Windows (system proxies, VPN, and
+  TLS come from the OS), the browser's own `fetch()` on `web-dom`, and a bundled ureq + rustls
+  fallback on Linux and OHOS.
 - **Hourly strip doesn't scroll horizontally** yet. Day's `scroll` grew a `.horizontal()` mode;
   the round-2 plan is to wire the strip to it instead of capping at 8 cells.
-- **`ohos-arkui` compiles** (Rust cross-compile succeeds, TLS included) but packaging the `.hap`
+- **`harmony-arkui` compiles** (Rust cross-compile succeeds, TLS included) but packaging the `.hap`
   needs the OpenHarmony command-line tools (`hvigor`/`ohpm`).
-- **`windows-winui`, `linux-gtk`, `linux-qt`** build on their native hosts in CI.
+- **`windows-xaml`, `linux-gtk`, `linux-qt`** build on their native hosts in CI.
 
 ## CI
 
 `.github/workflows/ci.yml` calls the shared
 [`daybrite/actions` build-day-app workflow](https://github.com/daybrite/actions) on every push,
-manual trigger, or `vX.Y.Z` tag: it builds all 7 shipping targets, runs the mock-data walkthrough
+manual trigger, or `vX.Y.Z` tag: it builds all 8 shipping targets, runs the mock-data walkthrough
 in all four locales, and packs a distributable per target. Tag builds attach the packages and
 screenshot zips to the GitHub release.
 

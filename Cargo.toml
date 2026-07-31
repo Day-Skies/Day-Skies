@@ -14,8 +14,9 @@ gtk = ["day/gtk"]
 qt = ["day/qt"]
 uikit = ["day/uikit"]
 mdc = ["day/mdc"]
-winui = ["day/winui"]
+xaml = ["day/xaml"]
 arkui = ["day/arkui"]
+dom = ["day/dom"]
 mock = ["day/mock"]
 
 # rlib for the desktop bin; the mobile pipeline requests the iOS staticlib / Android cdylib
