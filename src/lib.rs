@@ -125,16 +125,23 @@ pub fn root() -> AnyPiece {
             res::str::city_san_francisco(),
             || city_page(SAN_FRANCISCO),
         )
+        // City pages keep the floating transparent chrome over the full-bleed sky
+        // (android edge-to-edge); Settings keeps the standard opaque bar.
+        .immersive()
         .item(Section::NewYork, res::str::city_new_york(), || {
             city_page(NEW_YORK)
         })
+        .immersive()
         .item(Section::London, res::str::city_london(), || {
             city_page(LONDON)
         })
+        .immersive()
         .item(Section::Tokyo, res::str::city_tokyo(), || city_page(TOKYO))
+        .immersive()
         .item(Section::Sydney, res::str::city_sydney(), || {
             city_page(SYDNEY)
         })
+        .immersive()
         .item(
             Section::Settings,
             res::str::settings_title(),
