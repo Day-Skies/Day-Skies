@@ -165,7 +165,14 @@ pub fn settings_page() -> AnyPiece {
             .title(res::str::settings_server_section()),
         )),))
         .align(HAlign::Leading)
-        .padding(16.0),
+        // Immersive backends (android edge-to-edge): start below the transparent chrome;
+        // `safe_area()` is zero everywhere else, so this is 16.0 all round on other targets.
+        .padding(Insets {
+            top: 16.0 + day::safe_area().top,
+            leading: 16.0,
+            bottom: 16.0,
+            trailing: 16.0,
+        }),
     )
     .grow()
     .any()

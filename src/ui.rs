@@ -111,7 +111,20 @@ pub fn weather_page(place: Place, state: Signal<Load<Weather>>) -> AnyPiece {
             _ => LinearGradient::vertical(Color::hex(0x22304a), Color::hex(0x44546e)),
         })
         .grow();
-    zstack((backdrop, scroll(content).grow())).grow().any()
+    // On immersive backends (android edge-to-edge) the page runs under the status bar and
+    // floating nav bar: the backdrop fills that space while the scrolled content starts below
+    // it. `safe_area()` is zero everywhere else, so this pads nothing on the other targets.
+    let inset = day::safe_area();
+    zstack((
+        backdrop,
+        scroll(content.padding(Insets {
+            top: inset.top,
+            ..Insets::ZERO
+        }))
+        .grow(),
+    ))
+    .grow()
+    .any()
 }
 
 fn loaded_view(place: Place, w: &Weather) -> AnyPiece {

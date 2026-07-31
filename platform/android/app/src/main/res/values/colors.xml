@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Day Skies brand color: the Material baseline BLUE tonal palette (seed #0B57D0) in place of
+     Material 3's stock purple, so system chrome (status-bar tint, ripples, controls) matches the
+     app's sky. Light-scheme slots here; values-night/colors.xml carries the dark-scheme tones. -->
+<resources>
+    <color name="skies_primary">#0B57D0</color>
+    <color name="skies_on_primary">#FFFFFF</color>
+    <color name="skies_primary_container">#D3E3FD</color>
+    <color name="skies_on_primary_container">#041E49</color>
+</resources>

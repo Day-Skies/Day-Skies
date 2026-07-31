@@ -1,9 +1,11 @@
-# Day Skies CI — build, exercise, and package the app on every push, manual trigger, or
+# Day Skies CI — build, exercise, package, and deploy the app on every push, manual trigger, or
 # semantic-version tag, via the shared daybrite/actions workflow.
 #
 # Every run builds all 8 shipping platform-toolkit pairs, runs the mock-data walkthrough in all
 # four locales (screenshots land in the per-target artifacts), and packs a distributable. On a
-# vX.Y.Z tag the packages and screenshot zips are attached to the GitHub release.
+# vX.Y.Z tag the packages and screenshot zips are attached to the GitHub release. On a push to
+# main the web-dom build is also published to GitHub Pages at https://day-skies.github.io/Day-Skies/
+# (deploy-web: true; one-time Settings → Pages → Source = "GitHub Actions").
 #
 # WEATHER_MOCK=1 keeps the dayscript runs deterministic — fixed per-city fixtures instead of the
 # live Open-Meteo fetch, so assertions and screenshots are stable across runs and locales.
@@ -17,6 +19,8 @@ on:
 
 permissions:
   contents: write # release-asset upload on tag builds
+  pages: write    # web-dom → GitHub Pages (deploy-web)
+  id-token: write # deploy-pages OIDC token (deploy-web)
 
 jobs:
   app:
@@ -30,3 +34,6 @@ jobs:
       scripts: scripts/weather.yaml
       launch-env: WEATHER_MOCK=1
       locales: en fr ar zh-CN
+      # Publish the web build to GitHub Pages on every push to main (empty tag-pattern → the
+      # default-branch mode). Native release assets still attach on vX.Y.Z tags, independently.
+      deploy-web: true

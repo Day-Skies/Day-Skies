@@ -9,6 +9,9 @@
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
         android:enableOnBackInvokedCallback="true">
+        <!-- Immersive top chrome (docs/layout.md): transparent status bar + floating nav bar;
+             the app pads its content by day::safe_area(). -->
+        <meta-data android:name="dev.daybrite.day.EDGE_TO_EDGE" android:value="true" />
         <activity
             android:name="dev.daybrite.day.bridge.DayActivity"
             android:exported="true"

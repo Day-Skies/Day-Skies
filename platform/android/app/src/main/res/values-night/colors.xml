@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark-scheme tones of the Material baseline blue palette (see values/colors.xml). -->
+<resources>
+    <color name="skies_primary">#A8C7FA</color>
+    <color name="skies_on_primary">#062E6F</color>
+    <color name="skies_primary_container">#0842A0</color>
+    <color name="skies_on_primary_container">#D3E3FD</color>
+</resources>

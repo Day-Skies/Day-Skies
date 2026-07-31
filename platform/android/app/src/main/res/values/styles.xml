@@ -3,5 +3,22 @@
     <!-- App theme: Material 3 Expressive (new motion/shape/typography system, material 1.13+),
          follows the system light/dark setting (DayNight), no framework ActionBar (Day renders its
          own nav/toolbar chrome). Requires com.google.android.material. -->
-    <style name="AppTheme" parent="Theme.Material3Expressive.DayNight.NoActionBar" />
+    <style name="AppTheme" parent="Theme.Material3Expressive.DayNight.NoActionBar">
+        <!-- Rebrand the primary slot group (and the surface tint derived from it) onto the
+             Material baseline blue palette; every other role keeps its Material 3 default. -->
+        <item name="colorPrimary">@color/skies_primary</item>
+        <item name="colorOnPrimary">@color/skies_on_primary</item>
+        <item name="colorPrimaryContainer">@color/skies_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/skies_on_primary_container</item>
+        <!-- Day's push-nav bar is a MaterialToolbar (day-android DayNavHost); it resolves this
+             style attribute. Brand blue instead of surface-white, so the bar sits against the
+             app's full-bleed sky gradient instead of slicing it. -->
+        <item name="toolbarStyle">@style/SkiesToolbar</item>
+    </style>
+
+    <style name="SkiesToolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/skies_primary</item>
+        <item name="titleTextColor">@color/skies_on_primary</item>
+        <item name="navigationIconTint">@color/skies_on_primary</item>
+    </style>
 </resources>
