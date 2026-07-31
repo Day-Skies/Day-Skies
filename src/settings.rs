@@ -1,6 +1,7 @@
-//! App settings: temperature unit and the Open-Meteo host, persisted via day-part-prefs and
-//! exposed as signals the UI reads reactively. The page itself is a native Form (docs/forms.md):
-//! a segmented unit picker and a host field, in grouped section cards on every platform.
+//! App settings, one page: About, language, appearance, temperature unit, the user's city
+//! list (`cities.rs` builds those sections), and the Open-Meteo host — persisted via
+//! day-part-prefs and exposed as signals the UI reads reactively. A native Form
+//! (docs/forms.md): grouped section cards on every platform.
 
 use crate::res;
 use day::prelude::*;
@@ -12,6 +13,40 @@ pub const DEFAULT_HOST: &str = "api.open-meteo.com";
 
 const PREF_UNIT: &str = "dayskies.unit"; // "c" | "f"
 const PREF_HOST: &str = "dayskies.host";
+const PREF_LOCALE: &str = "dayskies.locale"; // a res::locales::ALL tag; absent = system
+const PREF_THEME: &str = "dayskies.theme"; // "light" | "dark"; absent = system
+
+thread_local! {
+    /// The locale the app STARTED in (system or `--locale`), captured before any stored
+    /// override applies — what the language picker's "System" entry restores.
+    static SYSTEM_LOCALE: OnceCell<String> = const { OnceCell::new() };
+}
+
+fn system_locale() -> String {
+    SYSTEM_LOCALE
+        .with(|c| c.get().cloned())
+        .unwrap_or_else(|| res::locales::DEFAULT.to_string())
+}
+
+/// Apply the persisted language and theme overrides — called once from `root()`, right after
+/// the locale catalog installs and before the first page builds.
+pub fn apply_startup() {
+    SYSTEM_LOCALE.with(|c| {
+        let _ = c.set(day::locale().get_untracked());
+    });
+    if let Some(tag) = day_part_prefs::get(PREF_LOCALE)
+        && !tag.is_empty()
+    {
+        day::prelude::set_locale(&tag);
+    }
+    if capability(Cap::Appearance) != Support::Unsupported {
+        match day_part_prefs::get(PREF_THEME).as_deref() {
+            Some("light") => day::set_appearance(Some(false)),
+            Some("dark") => day::set_appearance(Some(true)),
+            _ => {}
+        }
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Unit {
@@ -104,10 +139,83 @@ pub fn host() -> String {
     }
 }
 
-/// The settings page: a Form with a Units section (segmented picker) and a Server section
-/// (host field + Save, which persists and refetches every city).
+/// The Settings page: About, language, appearance (where the backend supports a runtime
+/// override — `Cap::Appearance`), units, the city-management sections, and the weather
+/// server, as one Form.
 pub fn settings_page() -> AnyPiece {
     let (unit_sig, host_sig) = with_store(|s| (s.unit, s.host));
+
+    // Language: "System" plus every bundled locale under its own name (res::locales::ALL —
+    // docs/localization.md). Strings re-resolve live; layout direction applies on restart.
+    let stored_tag = day_part_prefs::get(PREF_LOCALE).unwrap_or_default();
+    let lang_ix = Signal::new(
+        res::locales::ALL
+            .iter()
+            .position(|(tag, _)| *tag == stored_tag)
+            .map(|i| i + 1)
+            .unwrap_or(0),
+    );
+    watch(
+        move || lang_ix.get(),
+        |ix, _| match ix.checked_sub(1).and_then(|i| res::locales::ALL.get(i)) {
+            Some((tag, _)) => {
+                day_part_prefs::set(PREF_LOCALE, tag);
+                day::prelude::set_locale(tag);
+            }
+            None => {
+                day_part_prefs::remove(PREF_LOCALE);
+                day::prelude::set_locale(&system_locale());
+            }
+        },
+    );
+    let mut lang_options = vec![res::str::settings_system().format()];
+    lang_options.extend(
+        res::locales::ALL
+            .iter()
+            .map(|(_, name)| (*name).to_string()),
+    );
+    let language_row = labeled(
+        res::str::settings_language_label(),
+        picker(lang_options, lang_ix).id("language-picker"),
+    );
+
+    // Appearance: Light / Dark / System, only where the backend honors a runtime override.
+    let theme_supported = capability(Cap::Appearance) != Support::Unsupported;
+    let theme_ix = Signal::new(match day_part_prefs::get(PREF_THEME).as_deref() {
+        Some("light") => 0,
+        Some("dark") => 1,
+        _ => 2,
+    });
+    watch(
+        move || theme_ix.get(),
+        |ix, _| match ix {
+            0 => {
+                day_part_prefs::set(PREF_THEME, "light");
+                day::set_appearance(Some(false));
+            }
+            1 => {
+                day_part_prefs::set(PREF_THEME, "dark");
+                day::set_appearance(Some(true));
+            }
+            _ => {
+                day_part_prefs::remove(PREF_THEME);
+                day::set_appearance(None);
+            }
+        },
+    );
+    let theme_row = labeled(
+        res::str::settings_theme_label(),
+        picker(
+            [
+                res::str::theme_light().format(),
+                res::str::theme_dark().format(),
+                res::str::settings_system().format(),
+            ],
+            theme_ix,
+        )
+        .segmented()
+        .id("theme-picker"),
+    );
 
     // The segmented picker has no ArkUI backend yet; HarmonyOS gets a native toggle instead.
     #[cfg(not(target_env = "ohos"))]
@@ -149,30 +257,73 @@ pub fn settings_page() -> AnyPiece {
         .prominent()
         .id("settings-save");
 
-    scroll(
-        column((form((
-            section((unit_row,)).title(res::str::settings_units_section()),
+    let city = crate::cities::sections();
+
+    // About, app-level preferences, the city list, then the server — heterogeneous and
+    // partly conditional, so a PieceVec rather than a tuple.
+    let mut parts: Vec<AnyPiece> = vec![
+        // About: name, version, build date (stamped by build.rs), and the project page.
+        AnyPiece::new(
             section((
                 labeled(
-                    res::str::settings_host_label(),
-                    text_field(host_sig)
-                        .placeholder(DEFAULT_HOST.to_string())
-                        .id("host-field"),
+                    res::str::settings_name_label(),
+                    label(res::str::app_title()),
                 ),
-                label(res::str::settings_host_hint()).font(Font::Footnote),
-                save,
+                labeled(
+                    res::str::settings_version_label(),
+                    label(env!("CARGO_PKG_VERSION")).id("about-version"),
+                ),
+                labeled(
+                    res::str::settings_build_label(),
+                    label(env!("DAY_SKIES_BUILD_DATE")).id("about-build"),
+                ),
+                link(
+                    res::str::settings_github(),
+                    "https://github.com/Day-Skies/Day-Skies",
+                )
+                .id("about-github"),
             ))
-            .title(res::str::settings_server_section()),
-        )),))
-        .align(HAlign::Leading)
-        // Immersive backends (android edge-to-edge): start below the transparent chrome;
-        // `safe_area()` is zero everywhere else, so this is 16.0 all round on other targets.
-        .padding(Insets {
-            top: 16.0 + day::safe_area().top,
-            leading: 16.0,
-            bottom: 16.0,
-            trailing: 16.0,
-        }),
+            .title(res::str::settings_about_section()),
+        ),
+        AnyPiece::new(section((language_row,)).title(res::str::settings_language_section())),
+    ];
+    if theme_supported {
+        parts.push(AnyPiece::new(
+            section((theme_row,)).title(res::str::settings_theme_section()),
+        ));
+    }
+    parts.push(AnyPiece::new(
+        section((unit_row,)).title(res::str::settings_units_section()),
+    ));
+    parts.push(city.list);
+    parts.push(city.add);
+    parts.push(city.location);
+    parts.push(AnyPiece::new(
+        section((
+            labeled(
+                res::str::settings_host_label(),
+                text_field(host_sig)
+                    .placeholder(DEFAULT_HOST.to_string())
+                    .id("host-field"),
+            ),
+            label(res::str::settings_host_hint()).font(Font::Footnote),
+            save,
+        ))
+        .title(res::str::settings_server_section()),
+    ));
+
+    scroll(
+        column((form(PieceVec(parts)), city.status))
+            .spacing(12.0)
+            .align(HAlign::Leading)
+            // Immersive backends (android edge-to-edge): start below the transparent chrome;
+            // `safe_area()` is zero everywhere else, so this is 16.0 all round elsewhere.
+            .padding(Insets {
+                top: 16.0 + day::safe_area().top,
+                leading: 16.0,
+                bottom: 16.0,
+                trailing: 16.0,
+            }),
     )
     .grow()
     .any()

@@ -93,3 +93,20 @@ cities_status_locating = Finding your location…
 cities_status_located = Location added
 cities_status_permission = Location permission was not granted
 cities_status_location_failed = Location failed: { $error }
+
+# Settings — About section
+settings_about_section = About
+settings_name_label = Name
+settings_version_label = Version
+settings_build_label = Built
+settings_github = Source on GitHub
+
+# Language / appearance settings + the language's own name (res::locales::ALL)
+language_name = English
+settings_language_section = Language
+settings_language_label = Language
+settings_system = System
+settings_theme_section = Appearance
+settings_theme_label = Theme
+theme_light = Light
+theme_dark = Dark

@@ -45,6 +45,12 @@ flow:
   - navigate: { route: settings }
   - wait_for: { id: unit-picker }
   - assert_visible: { id: host-field }
+  # The About section: version and the GitHub link render; the build date and link are never
+  # asserted by value (date drifts, and tapping the link would open a browser). The theme
+  # picker is NOT asserted — backends without Cap::Appearance hide that section.
+  - assert_visible: { id: about-version }
+  - assert_visible: { id: about-github }
+  - assert_visible: { id: language-picker }
   - screenshot: settings
   - select: { id: unit-picker, index: 1 }
   - navigate: { route: san-francisco }
@@ -57,15 +63,14 @@ flow:
   - navigate: { route: san-francisco }
   - assert_text: { id: hero-temp, text: "18°" }
 
-  # Cities: add a custom city by coordinates (unknown ids get the fixed 20 °C mock fixture),
-  # visit it, then remove it so reruns start from the same list. The preset add is exercised
-  # against the default picker selection (San Francisco, already on the list) so the flow needs
-  # no synthetic picker select; the location button is asserted present but never tapped — a
-  # real permission prompt would hang an unattended run.
-  - navigate: { route: cities }
+  # City management (on the Settings page): add a custom city by coordinates (unknown ids
+  # get the fixed 20 °C mock fixture), visit it, then remove it so reruns start from the same
+  # list. The preset add is exercised against the default picker selection (San Francisco,
+  # already on the list) so the flow needs no synthetic picker select; the location button is
+  # asserted present but never tapped — a real permission prompt would hang an unattended run.
+  - navigate: { route: settings }
   - wait_for: { id: city-name }
   - assert_visible: { id: city-locate }
-  - screenshot: cities
   - input: { id: city-name, text: "Testville" }
   - input: { id: city-lat, text: "10" }
   - input: { id: city-lon, text: "20" }
@@ -76,7 +81,7 @@ flow:
   - assert_text: { id: hero-city, text: "Testville" }
   - assert_text: { id: hero-temp, text: "20°" }
   - screenshot: testville
-  - navigate: { route: cities }
+  - navigate: { route: settings }
   - wait_for: { id: city-name }
   - tap: { id: city-add-preset }
   - assert_text: { id: city-status, key: cities_status_exists }

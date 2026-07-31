@@ -88,3 +88,20 @@ cities_status_locating = جارٍ تحديد موقعك…
 cities_status_located = تمت إضافة الموقع
 cities_status_permission = لم يُمنح إذن الوصول إلى الموقع
 cities_status_location_failed = تعذر تحديد الموقع: { $error }
+
+# الإعدادات — قسم حول
+settings_about_section = حول
+settings_name_label = الاسم
+settings_version_label = الإصدار
+settings_build_label = تاريخ البناء
+settings_github = الشيفرة المصدرية على GitHub
+
+# إعدادات اللغة والمظهر + اسم اللغة (res::locales::ALL)
+language_name = العربية
+settings_language_section = اللغة
+settings_language_label = اللغة
+settings_system = النظام
+settings_theme_section = المظهر
+settings_theme_label = السمة
+theme_light = فاتح
+theme_dark = داكن

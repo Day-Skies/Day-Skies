@@ -94,6 +94,8 @@ pub fn root() -> AnyPiece {
     // Every locale under `resource/locales/` (en, fr, ar, zh-CN), embedded and registered by the
     // generated catalog — adding a language is a new directory, nothing to edit here.
     res::locales::install();
+    // Persisted language/theme overrides, before the first page builds.
+    settings::apply_startup();
 
     // Create every stored city's resource in the (permanent) root scope and start loading now.
     let city_list = cities::cities();
@@ -108,9 +110,9 @@ pub fn root() -> AnyPiece {
         .style(SelectorStyle::Sidebar)
         .title(res::str::app_title())
         .header(sidebar_header)
-        // The city rows re-derive whenever the list changes (add/edit/remove on the Cities
-        // page). They keep the floating transparent chrome over the full-bleed sky (android
-        // edge-to-edge); Cities and Settings keep the standard opaque bar.
+        // The city rows re-derive whenever the list changes (add/edit/remove on the
+        // Settings page). They keep the floating transparent chrome over the full-bleed sky
+        // (android edge-to-edge); Settings keeps the standard opaque bar.
         .items(
             move || city_list.get(),
             |c: &City| item(c.id.clone(), cities::title(c)).immersive(),
@@ -119,11 +121,6 @@ pub fn root() -> AnyPiece {
             Some(id) => city_page_for(id),
             None => spacer().any(),
         })
-        .item(
-            "cities".to_string(),
-            res::str::cities_title(),
-            cities::cities_page,
-        )
         .item(
             "settings".to_string(),
             res::str::settings_title(),

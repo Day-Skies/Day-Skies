@@ -1,4 +1,5 @@
-//! The user's city list: the model, its persistence, and the Cities management page.
+//! The user's city list: the model, its persistence, and the city-management form sections
+//! that `settings.rs` composes into the Settings page.
 //!
 //! The list is a root-lifetime `Signal<Vec<City>>` seeded from day-part-prefs (JSON under one
 //! key) and written back on every mutation. `lib.rs` derives the selector's city items from it,
@@ -257,9 +258,19 @@ fn parse_coord(s: &str, limit: f64) -> Option<f64> {
     (v.is_finite() && v.abs() <= limit).then_some(v)
 }
 
-/// The Cities page: the current list (edit/remove per row), a preset catalog, a
-/// name-plus-coordinates form, and the current-location shortcut.
-pub fn cities_page() -> AnyPiece {
+/// The city-management form pieces (shared page-scoped signals inside): the current list
+/// (edit/remove per row), the preset catalog + name-and-coordinates form, the
+/// current-location shortcut, and the one-line outcome readout (`city-status`,
+/// walkthrough-asserted). `settings.rs` places the sections in its form and the status line
+/// under it.
+pub struct CitySections {
+    pub list: AnyPiece,
+    pub add: AnyPiece,
+    pub location: AnyPiece,
+    pub status: AnyPiece,
+}
+
+pub fn sections() -> CitySections {
     let list = cities();
     let name = Signal::new(String::new());
     let lat = Signal::new(String::new());
@@ -375,16 +386,19 @@ pub fn cities_page() -> AnyPiece {
         })
         .id("city-clear");
 
-    // One coarse fix is plenty for city-level weather. The permission ask comes first —
-    // day-part-location never prompts by itself (docs/location.md).
+    // One coarse fix is plenty for city-level weather. The explicit permission ask happens
+    // only where the OS HAS one (Apple, Android — day-part-location never prompts by itself,
+    // docs/location.md). The browser's Permissions API cannot prompt at all: its prompt lives
+    // inside the geolocation call, so on web we go straight to the fix and let it ask.
     let locate = button(res::str::cities_use_location())
         .action(move || {
             status.set(Status::Locating);
             day::task(async move {
                 use day_part_permissions::Permission;
-                if !day_part_permissions::request_future(Permission::Location)
-                    .await
-                    .is_granted()
+                if day_part_permissions::can_prompt(Permission::Location)
+                    && !day_part_permissions::request_future(Permission::Location)
+                        .await
+                        .is_granted()
                 {
                     status.set(Status::PermissionDenied);
                     return;
@@ -399,48 +413,38 @@ pub fn cities_page() -> AnyPiece {
                         });
                         status.set(Status::Located);
                     }
+                    Err(day_part_location::LocationError::PermissionDenied) => {
+                        status.set(Status::PermissionDenied)
+                    }
                     Err(e) => status.set(Status::LocationFailed(e.to_string())),
                 }
             });
         })
         .id("city-locate");
 
-    scroll(
-        column((
-            form((
-                section((rows,)).title(res::str::cities_list_section()),
-                section((
-                    labeled(
-                        res::str::cities_preset_label(),
-                        picker(preset_names, preset_ix).id("city-preset-picker"),
-                    ),
-                    add_preset,
-                    labeled(
-                        res::str::cities_name_label(),
-                        text_field(name).id("city-name"),
-                    ),
-                    labeled(res::str::cities_lat_label(), text_field(lat).id("city-lat")),
-                    labeled(res::str::cities_lon_label(), text_field(lon).id("city-lon")),
-                    row((save, clear)).spacing(8.0),
-                ))
-                .title(res::str::cities_add_section()),
-                section((locate,)).title(res::str::cities_location_section()),
-            )),
-            label(move || status.get().text())
-                .font(Font::Footnote)
-                .id("city-status"),
-        ))
-        .spacing(12.0)
-        .align(HAlign::Leading)
-        // Same inset treatment as the settings page: immersive backends (android
-        // edge-to-edge) start below the transparent chrome; zero elsewhere.
-        .padding(Insets {
-            top: 16.0 + day::safe_area().top,
-            leading: 16.0,
-            bottom: 16.0,
-            trailing: 16.0,
-        }),
-    )
-    .grow()
-    .any()
+    CitySections {
+        list: AnyPiece::new(section((rows,)).title(res::str::cities_list_section())),
+        add: AnyPiece::new(
+            section((
+                labeled(
+                    res::str::cities_preset_label(),
+                    picker(preset_names, preset_ix).id("city-preset-picker"),
+                ),
+                add_preset,
+                labeled(
+                    res::str::cities_name_label(),
+                    text_field(name).id("city-name"),
+                ),
+                labeled(res::str::cities_lat_label(), text_field(lat).id("city-lat")),
+                labeled(res::str::cities_lon_label(), text_field(lon).id("city-lon")),
+                row((save, clear)).spacing(8.0),
+            ))
+            .title(res::str::cities_add_section()),
+        ),
+        location: AnyPiece::new(section((locate,)).title(res::str::cities_location_section())),
+        status: label(move || status.get().text())
+            .font(Font::Footnote)
+            .id("city-status")
+            .any(),
+    }
 }

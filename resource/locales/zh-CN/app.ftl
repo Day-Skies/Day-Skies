@@ -88,3 +88,20 @@ cities_status_locating = 正在获取位置…
 cities_status_located = 已添加位置
 cities_status_permission = 未获得位置权限
 cities_status_location_failed = 定位失败：{ $error }
+
+# 设置 — 关于部分
+settings_about_section = 关于
+settings_name_label = 名称
+settings_version_label = 版本
+settings_build_label = 构建日期
+settings_github = GitHub 源代码
+
+# 语言/外观设置 + 语言自称（res::locales::ALL）
+language_name = 简体中文
+settings_language_section = 语言
+settings_language_label = 语言
+settings_system = 系统
+settings_theme_section = 外观
+settings_theme_label = 主题
+theme_light = 浅色
+theme_dark = 深色

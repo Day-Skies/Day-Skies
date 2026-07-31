@@ -88,3 +88,20 @@ cities_status_locating = Recherche de votre position…
 cities_status_located = Position ajoutée
 cities_status_permission = L'accès à la position n'a pas été accordé
 cities_status_location_failed = Échec de la localisation : { $error }
+
+# Réglages — section À propos
+settings_about_section = À propos
+settings_name_label = Nom
+settings_version_label = Version
+settings_build_label = Compilé le
+settings_github = Code source sur GitHub
+
+# Réglages langue / apparence + le nom de la langue (res::locales::ALL)
+language_name = Français
+settings_language_section = Langue
+settings_language_label = Langue
+settings_system = Système
+settings_theme_section = Apparence
+settings_theme_label = Thème
+theme_light = Clair
+theme_dark = Sombre
