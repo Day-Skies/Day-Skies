@@ -3,10 +3,11 @@
 //! realized natively on every backend; the `selector` in `lib.rs` makes it a sidebar+detail split
 //! on desktop and a push-list on mobile with no branching here.
 
+use crate::cities::City;
 use crate::icons::{Glyph, weather_icon};
 use crate::res;
 use crate::settings;
-use crate::weather::{DataSource, DayName, Family, Place, Weather};
+use crate::weather::{DataSource, DayName, Family, Weather};
 use day::prelude::*;
 use day::reactive::Load;
 
@@ -21,17 +22,6 @@ fn condition_label(f: Family) -> LocalizedText {
         Family::Rain => res::str::cond_rain(),
         Family::Snow => res::str::cond_snow(),
         Family::Thunder => res::str::cond_thunder(),
-    }
-}
-
-/// Map a place to its localized city name constant.
-fn city_label(place: Place) -> LocalizedText {
-    match place.id {
-        "san-francisco" => res::str::city_san_francisco(),
-        "new-york" => res::str::city_new_york(),
-        "london" => res::str::city_london(),
-        "tokyo" => res::str::city_tokyo(),
-        _ => res::str::city_sydney(),
     }
 }
 
@@ -77,7 +67,7 @@ pub fn sky(family: crate::weather::Family, is_day: bool) -> LinearGradient {
 }
 
 /// The whole page for one place, driven by its reactive `Load<Weather>` signal (docs/async.md).
-pub fn weather_page(place: Place, state: Signal<Load<Weather>>) -> AnyPiece {
+pub fn weather_page(place: City, state: Signal<Load<Weather>>) -> AnyPiece {
     let content = column((
         when(move || state.with(|s| s.is_loading()), loading_view),
         when(
@@ -94,7 +84,7 @@ pub fn weather_page(place: Place, state: Signal<Load<Weather>>) -> AnyPiece {
         when(
             move || state.with(|s| s.is_ready()),
             move || match state.get_untracked() {
-                Load::Ready(w) => loaded_view(place, &w),
+                Load::Ready(w) => loaded_view(&place, &w),
                 _ => spacer().any(),
             },
         ),
@@ -127,7 +117,7 @@ pub fn weather_page(place: Place, state: Signal<Load<Weather>>) -> AnyPiece {
     .any()
 }
 
-fn loaded_view(place: Place, w: &Weather) -> AnyPiece {
+fn loaded_view(place: &City, w: &Weather) -> AnyPiece {
     column((
         hero(place, w),
         hourly_strip(w),
@@ -141,10 +131,10 @@ fn loaded_view(place: Place, w: &Weather) -> AnyPiece {
     .any()
 }
 
-fn hero(place: Place, w: &Weather) -> AnyPiece {
+fn hero(place: &City, w: &Weather) -> AnyPiece {
     let glyph = Glyph::of(w.family, w.is_day);
     column((
-        label(city_label(place))
+        label(crate::cities::title(place))
             .font(Font::Title)
             .color(TEXT)
             .id("hero-city"),

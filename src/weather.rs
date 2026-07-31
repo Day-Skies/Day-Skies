@@ -10,14 +10,9 @@
 
 use serde::Deserialize;
 
-/// A place we can show weather for. `id` doubles as the Fluent name key suffix (`city-<id>`) and
-/// the deterministic seed for mock data.
-#[derive(Clone, Copy, Debug)]
-pub struct Place {
-    pub id: &'static str,
-    pub latitude: f64,
-    pub longitude: f64,
-}
+/// A place we can show weather for: the user's [`City`] model (`cities.rs`). `id` seeds the
+/// deterministic mock data — unknown ids (custom cities) get the fixed default fixture.
+use crate::cities::City;
 
 /// Where the currently-displayed data came from — surfaced in the UI.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -120,10 +115,12 @@ impl Family {
 // ---------------------------------------------------------------------------
 
 /// Is the app forced into deterministic mock mode? Driven by `--env WEATHER_MOCK=1` at launch.
+/// `day::env` rather than `std::env`: on web-dom the flag arrives as a page query parameter,
+/// not process environment (a browser has none).
 pub fn is_mock() -> bool {
-    match std::env::var("WEATHER_MOCK") {
-        Ok(v) => !(v.is_empty() || v == "0" || v.eq_ignore_ascii_case("false")),
-        Err(_) => false,
+    match day::env("WEATHER_MOCK") {
+        Some(v) => !(v.is_empty() || v == "0" || v.eq_ignore_ascii_case("false")),
+        None => false,
     }
 }
 
@@ -141,8 +138,8 @@ fn mock_params(id: &str) -> (f64, u16, i64) {
 }
 
 /// Build a deterministic `Weather` fixture for a place (used for `WEATHER_MOCK` and tests).
-pub fn mock(place: Place) -> Weather {
-    let (base, code, hour) = mock_params(place.id);
+pub fn mock(place: &City) -> Weather {
+    let (base, code, hour) = mock_params(&place.id);
     let family = Family::from_code(code);
     let is_day = (6..20).contains(&hour);
 
@@ -224,9 +221,9 @@ fn weekday_index_offset(y: i64, m: i64, d: i64, offset: i64) -> u8 {
 /// Resolve a place to a full `Weather`. Mock data resolves synchronously (the Resource
 /// eager-poll case); the live path awaits the platform fetch and parses on the UI thread — an
 /// Open-Meteo payload is tens of KB, so the parse cost there is negligible.
-pub async fn load(place: Place, host: String) -> Result<Weather, WeatherError> {
+pub async fn load(place: City, host: String) -> Result<Weather, WeatherError> {
     if is_mock() {
-        return Ok(mock(place));
+        return Ok(mock(&place));
     }
     net::fetch(place, host).await.map_err(WeatherError)
 }
@@ -352,7 +349,7 @@ fn process(api: ApiResp) -> Weather {
 
 /// The forecast URL for a place — 10 days, °C, auto timezone. The host is the user's configured
 /// Open-Meteo-compatible server (settings), defaulting to api.open-meteo.com.
-fn forecast_url(place: Place, host: &str) -> String {
+fn forecast_url(place: &City, host: &str) -> String {
     format!(
         "https://{host}/v1/forecast?latitude={:.4}&longitude={:.4}\
          &current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,pressure_msl,uv_index\
@@ -364,14 +361,14 @@ fn forecast_url(place: Place, host: &str) -> String {
 }
 
 mod net {
-    use super::{ApiResp, Place, Weather, forecast_url, process};
+    use super::{ApiResp, City, Weather, forecast_url, process};
     use std::time::Duration;
 
     /// HTTPS GET + parse via the platform HTTP stack, await-style: `fetch_future` starts the
     /// request immediately and its drop (a superseded or disposed Resource fetch) cancels it
     /// where the platform can (docs/http.md's cancel matrix).
-    pub async fn fetch(place: Place, host: String) -> Result<Weather, String> {
-        let url = forecast_url(place, &host);
+    pub async fn fetch(place: City, host: String) -> Result<Weather, String> {
+        let url = forecast_url(&place, &host);
         let resp = day_part_http::fetch_future(
             day_part_http::Request::get(url).timeout(Duration::from_secs(15)),
         )

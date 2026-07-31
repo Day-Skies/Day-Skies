@@ -28,6 +28,12 @@ targets = [
 # Localization: every directory under `resource/locales/` (en default; also fr, ar, zh-CN) is
 # registered by the generated `res::locales::install()` in src/lib.rs. Force a locale at launch with `day launch --locale <bcp47>`.
 
+# OS permissions (docs/permissions.md): `day build` turns this into the Android
+# <uses-permission>, the Info.plist usage description, and the HarmonyOS requestPermissions
+# entry. The reason text is what the OS shows in its prompt.
+[permissions]
+location-when-in-use = "Show weather for where you are right now."
+
 [window]
 width = 960
 height = 640

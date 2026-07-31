@@ -35,5 +35,7 @@
 	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Show weather for where you are right now.</string>
 </dict>
 </plist>

@@ -16,6 +16,9 @@ export default class EntryAbility extends UIAbility {
     // autodrive) into the native process BEFORE the UI — and thus `day_script::init()` inside
     // `start()` — runs. This is the HarmonyOS analogue of Android's intent-extra env delivery
     // (day/src/lib.rs): `day launch` passes them as `aa start --ps` string parameters.
+    // The app's private files directory, for day-part-fs (docs/fs.md) — here rather than in
+    // applyLaunchEnv, which is static and has no ability context.
+    nativeEntry.setEnv('DAY_DATA_DIR', this.context.filesDir);
     EntryAbility.applyLaunchEnv(want);
     // DAY_THEME=light|dark (a `day launch --env` passthrough, delivered as a `--ps` want
     // parameter) forces the app's color mode — themed screenshot runs and local theme checks;
