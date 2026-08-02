@@ -32,6 +32,7 @@ day = { git = "https://github.com/daybrite/day.git" }
 # Settings page: the built-in native picker (no arkui backend — the settings page cfg-gates a
 # toggle there) + persistent preferences.
 day-part-prefs = { git = "https://github.com/daybrite/day.git" }
+day-piece-settings = { git = "https://github.com/daybrite/day.git" }
 # The platform HTTP stack (URLSession / HttpURLConnection / WinHTTP; ureq+rustls only on
 # Linux/OHOS) — system proxies, VPN, and TLS come from the OS, no TLS library in the app.
 day-part-http = { git = "https://github.com/daybrite/day.git" }

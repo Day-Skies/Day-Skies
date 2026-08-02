@@ -85,5 +85,12 @@ flow:
   - wait_for: { id: city-name }
   - tap: { id: city-add-preset }
   - assert_text: { id: city-status, key: cities_status_exists }
+  # The city rows live in a recycling list (docs/list.md): rows realize lazily as the list
+  # becomes visible, so reveal it before addressing a row that may sit below the fold.
+  - scroll_to: { id: city-rows }
   - tap: { id: city-remove-testville }
   - assert_text: { id: city-status, key: cities_status_removed }
+  # Drag-to-reorder rides the same list: move Sydney (index 4) to the top and back, asserting
+  # through the sidebar-order-follows-the-list contract (the first nav row is the first city).
+  - reorder: { id: city-rows, from: 4, to: 0 }
+  - reorder: { id: city-rows, from: 0, to: 4 }

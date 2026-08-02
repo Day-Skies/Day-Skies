@@ -23,3 +23,16 @@ export const onFileResult: (req: number, path: string) => void;
 // (§18.3) via OH_ResourceManager_*. Call once, before or after `start()`; until then the rawfile
 // resource opener returns nothing (day_ark_res_available == 0).
 export const registerResourceManager: (resourceManager: Object) => void;
+
+// Secondary day windows (docs/windows.md). The registered `open` launches a multiton
+// DayWindowAbility (the day node id + title as want parameters); `close` terminates one.
+// The ability page completes an open with `windowStart` (false = closed before connecting)
+// and reports lifecycle through `windowResized` / `windowFocused` / `windowClosed`.
+export const registerWindows: (
+  open: (node: number, title: string) => void,
+  close: (node: number) => void
+) => void;
+export const windowStart: (content: Object, node: number, widthVp: number, heightVp: number) => boolean;
+export const windowResized: (node: number, widthVp: number, heightVp: number) => void;
+export const windowFocused: (node: number, active: number) => void;
+export const windowClosed: (node: number) => void;

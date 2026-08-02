@@ -37,5 +37,10 @@
 	<dict/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Show weather for where you are right now.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

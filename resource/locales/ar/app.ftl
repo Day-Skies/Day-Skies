@@ -105,3 +105,5 @@ settings_theme_section = المظهر
 settings_theme_label = السمة
 theme_light = فاتح
 theme_dark = داكن
+
+open_in_new_window = فتح في نافذة جديدة

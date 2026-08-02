@@ -110,3 +110,5 @@ settings_theme_section = Appearance
 settings_theme_label = Theme
 theme_light = Light
 theme_dark = Dark
+
+open_in_new_window = Open in New Window

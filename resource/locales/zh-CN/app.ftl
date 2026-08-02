@@ -105,3 +105,5 @@ settings_theme_section = 外观
 settings_theme_label = 主题
 theme_light = 浅色
 theme_dark = 深色
+
+open_in_new_window = 在新窗口中打开

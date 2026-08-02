@@ -166,6 +166,17 @@ fn update(f: impl FnOnce(&mut Vec<City>)) {
     sig.set(v);
 }
 
+/// Drag-to-reorder (docs/list.md): the row at `from` now sits at `to`. The JSON array already
+/// encodes order, so the same persist path covers it — the sidebar follows the same Vec.
+pub fn move_city(from: usize, to: usize) {
+    update(|v| {
+        if from < v.len() && to < v.len() {
+            let c = v.remove(from);
+            v.insert(to, c);
+        }
+    });
+}
+
 /// Insert or replace by id. Coordinates may have changed, so the city's memoized weather
 /// resource is dropped and rebuilt on next view.
 fn upsert(city: City) {
@@ -271,7 +282,7 @@ pub struct CitySections {
 }
 
 pub fn sections() -> CitySections {
-    let list = cities();
+    let list_sig = cities();
     let name = Signal::new(String::new());
     let lat = Signal::new(String::new());
     let lon = Signal::new(String::new());
@@ -287,19 +298,21 @@ pub fn sections() -> CitySections {
         editing.set(None);
     };
 
-    // Your cities: one row per city, edit loads it into the form, remove deletes it.
-    let rows = each(
-        move || list.get(),
-        |c| c.id.clone(),
+    // Your cities: one recycling-list row per city (drag to reorder — the order IS the sidebar
+    // order, persisted with the list), edit loads it into the form, remove deletes it.
+    let rows = list(
+        move || list_sig.get(),
+        |c: &City| c.id.clone(),
         move |slot| {
-            let id = slot.key();
-            let edit_id = id.clone();
-            let remove_id = id.clone();
+            // Recycling rows (docs/list.md): a physical cell REBINDS to different cities as the
+            // list changes or reorders, so actions read the slot's CURRENT key at click time and
+            // the ids re-register reactively (`id_of`) — a build-time key would go stale.
             row((
                 label(move || title(&slot.get()).format()).grow(),
                 button(res::str::cities_edit())
                     .action(move || {
-                        let Some(c) = list.get_untracked().into_iter().find(|c| c.id == edit_id)
+                        let key = slot.key();
+                        let Some(c) = list_sig.get_untracked().into_iter().find(|c| c.id == key)
                         else {
                             return;
                         };
@@ -309,17 +322,23 @@ pub fn sections() -> CitySections {
                         editing.set(Some(c.id));
                         status.set(Status::Idle);
                     })
-                    .id(format!("city-edit-{id}")),
+                    .id_of(move || format!("city-edit-{}", slot.field(|c| c.id.clone()))),
                 button(res::str::cities_remove())
                     .action(move || {
-                        remove(&remove_id);
+                        remove(&slot.key());
                         status.set(Status::Removed);
                     })
-                    .id(format!("city-remove-{id}")),
+                    .id_of(move || format!("city-remove-{}", slot.field(|c| c.id.clone()))),
             ))
             .spacing(8.0)
+            .padding(Insets::symmetric(4.0, 0.0))
         },
-    );
+    )
+    .row_height(RowHeight::Uniform(44.0))
+    .reorderable(true)
+    .on_reorder(move_city)
+    .id("city-rows")
+    .height(280.0);
 
     // Add from the catalog. The picker's options are fixed, so already-added cities answer
     // with the "already on your list" status instead of duplicating.
@@ -327,7 +346,7 @@ pub fn sections() -> CitySections {
     let add_preset = button(res::str::cities_add_preset())
         .action(move || {
             let p = &PRESETS[preset_ix.get_untracked().min(PRESETS.len() - 1)];
-            if list.get_untracked().iter().any(|c| c.id == p.id) {
+            if list_sig.get_untracked().iter().any(|c| c.id == p.id) {
                 status.set(Status::Exists);
                 return;
             }
@@ -365,7 +384,7 @@ pub fn sections() -> CitySections {
                         return;
                     }
                     City {
-                        id: unique_id(&typed, &list.get_untracked()),
+                        id: unique_id(&typed, &list_sig.get_untracked()),
                         name: typed,
                         latitude,
                         longitude,

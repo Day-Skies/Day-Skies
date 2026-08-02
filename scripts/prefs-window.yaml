@@ -1,0 +1,10 @@
+name: skies-prefs-window
+description: The Preferences window (docs/windows.md, desktop combos) — the auto Settings…
+  menu action opens the settings page as a singleton window; the same ids the sidebar
+  route asserts elsewhere resolve inside it.
+flow:
+  - wait_for: { id: hero-city }
+  - menu: { key: day-preferences }
+  - wait_for: { id: language-picker }
+  - screenshot: { name: prefs-window, window: day.preferences }
+  - close_window: { window: day.preferences }

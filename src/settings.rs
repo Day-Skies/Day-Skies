@@ -16,36 +16,12 @@ const PREF_HOST: &str = "dayskies.host";
 const PREF_LOCALE: &str = "dayskies.locale"; // a res::locales::ALL tag; absent = system
 const PREF_THEME: &str = "dayskies.theme"; // "light" | "dark"; absent = system
 
-thread_local! {
-    /// The locale the app STARTED in (system or `--locale`), captured before any stored
-    /// override applies — what the language picker's "System" entry restores.
-    static SYSTEM_LOCALE: OnceCell<String> = const { OnceCell::new() };
-}
-
-fn system_locale() -> String {
-    SYSTEM_LOCALE
-        .with(|c| c.get().cloned())
-        .unwrap_or_else(|| res::locales::DEFAULT.to_string())
-}
-
 /// Apply the persisted language and theme overrides — called once from `root()`, right after
-/// the locale catalog installs and before the first page builds.
+/// the locale catalog installs and before the first page builds. The shared piece owns the
+/// mechanics (docs/windows.md), including the env-wins rule: a `DAY_THEME`/`--locale` launch
+/// keeps its override no matter what an earlier run persisted.
 pub fn apply_startup() {
-    SYSTEM_LOCALE.with(|c| {
-        let _ = c.set(day::locale().get_untracked());
-    });
-    if let Some(tag) = day_part_prefs::get(PREF_LOCALE)
-        && !tag.is_empty()
-    {
-        day::prelude::set_locale(&tag);
-    }
-    if capability(Cap::Appearance) != Support::Unsupported {
-        match day_part_prefs::get(PREF_THEME).as_deref() {
-            Some("light") => day::set_appearance(Some(false)),
-            Some("dark") => day::set_appearance(Some(true)),
-            _ => {}
-        }
-    }
+    day_piece_settings::apply_startup(PREF_THEME, PREF_LOCALE);
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -145,77 +121,11 @@ pub fn host() -> String {
 pub fn settings_page() -> AnyPiece {
     let (unit_sig, host_sig) = with_store(|s| (s.unit, s.host));
 
-    // Language: "System" plus every bundled locale under its own name (res::locales::ALL —
-    // docs/localization.md). Strings re-resolve live; layout direction applies on restart.
-    let stored_tag = day_part_prefs::get(PREF_LOCALE).unwrap_or_default();
-    let lang_ix = Signal::new(
-        res::locales::ALL
-            .iter()
-            .position(|(tag, _)| *tag == stored_tag)
-            .map(|i| i + 1)
-            .unwrap_or(0),
-    );
-    watch(
-        move || lang_ix.get(),
-        |ix, _| match ix.checked_sub(1).and_then(|i| res::locales::ALL.get(i)) {
-            Some((tag, _)) => {
-                day_part_prefs::set(PREF_LOCALE, tag);
-                day::prelude::set_locale(tag);
-            }
-            None => {
-                day_part_prefs::remove(PREF_LOCALE);
-                day::prelude::set_locale(&system_locale());
-            }
-        },
-    );
-    let mut lang_options = vec![res::str::settings_system().format()];
-    lang_options.extend(
-        res::locales::ALL
-            .iter()
-            .map(|(_, name)| (*name).to_string()),
-    );
-    let language_row = labeled(
-        res::str::settings_language_label(),
-        picker(lang_options, lang_ix).id("language-picker"),
-    );
-
-    // Appearance: Light / Dark / System, only where the backend honors a runtime override.
-    let theme_supported = capability(Cap::Appearance) != Support::Unsupported;
-    let theme_ix = Signal::new(match day_part_prefs::get(PREF_THEME).as_deref() {
-        Some("light") => 0,
-        Some("dark") => 1,
-        _ => 2,
-    });
-    watch(
-        move || theme_ix.get(),
-        |ix, _| match ix {
-            0 => {
-                day_part_prefs::set(PREF_THEME, "light");
-                day::set_appearance(Some(false));
-            }
-            1 => {
-                day_part_prefs::set(PREF_THEME, "dark");
-                day::set_appearance(Some(true));
-            }
-            _ => {
-                day_part_prefs::remove(PREF_THEME);
-                day::set_appearance(None);
-            }
-        },
-    );
-    let theme_row = labeled(
-        res::str::settings_theme_label(),
-        picker(
-            [
-                res::str::theme_light().format(),
-                res::str::theme_dark().format(),
-                res::str::settings_system().format(),
-            ],
-            theme_ix,
-        )
-        .segmented()
-        .id("theme-picker"),
-    );
+    // Language + appearance: the shared settings rows (docs/windows.md — day-piece-settings).
+    // Same ids (`language-picker`/`theme-picker`), same persistence keys, same live apply;
+    // the appearance row is Cap::Appearance-gated inside the piece (empty when unsupported).
+    let language_row = day_piece_settings::language_picker(PREF_LOCALE, res::locales::ALL);
+    let theme_row = day_piece_settings::appearance_picker(PREF_THEME);
 
     // The segmented picker has no ArkUI backend yet; HarmonyOS gets a native toggle instead.
     #[cfg(not(target_env = "ohos"))]
@@ -287,7 +197,9 @@ pub fn settings_page() -> AnyPiece {
         ),
         AnyPiece::new(section((language_row,)).title(res::str::settings_language_section())),
     ];
-    if theme_supported {
+    // The appearance row gates itself on Cap::Appearance (empty piece when unsupported) —
+    // an empty section card would still render, so keep the section gate too.
+    if capability(Cap::Appearance) != Support::Unsupported {
         parts.push(AnyPiece::new(
             section((theme_row,)).title(res::str::settings_theme_section()),
         ));
