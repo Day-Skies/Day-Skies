@@ -1,14 +1,3 @@
-# Day Skies CI — build, exercise, package, and deploy the app on every push, manual trigger, or
-# semantic-version tag, via the shared daybrite/actions workflow.
-#
-# Every run builds all 8 shipping platform-toolkit pairs, runs the mock-data walkthrough in all
-# four locales (screenshots land in the per-target artifacts), and packs a distributable. On a
-# vX.Y.Z tag the packages and screenshot zips are attached to the GitHub release. On a push to
-# main the web-dom build is also published to GitHub Pages at https://day-skies.github.io/Day-Skies/
-# (deploy-web: true; one-time Settings → Pages → Source = "GitHub Actions").
-#
-# WEATHER_MOCK=1 keeps the dayscript runs deterministic — fixed per-city fixtures instead of the
-# live Open-Meteo fetch, so assertions and screenshots are stable across runs and locales.
 name: ci
 
 on:
@@ -16,6 +5,8 @@ on:
     branches: ["**"]
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
   workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *" # daily (UTC)
 
 permissions:
   contents: write # release-asset upload on tag builds
