@@ -1,0 +1,20 @@
+Day Skies est une application météo qui vous donne les prévisions sans rien demander en retour.
+
+Chaque ville s'ouvre sous un dégradé de ciel qui suit les conditions — dégagé, nuageux, brouillard, pluie, neige ou orages — avec la température actuelle, une bande horaire, des prévisions sur dix jours avec barres d'amplitude, et des cartes de détail pour ce que vous regardez ensuite.
+
+CE QUE VOUS OBTENEZ
+
+• Température ressentie, humidité, vent, indice UV, lever et coucher du soleil, et pression
+• Des prévisions sur dix jours où l'amplitude de chaque journée est dessinée, pas seulement listée
+• Les conditions heure par heure pour la journée à venir
+• Autant de villes que vous voulez, ajoutées par nom, par coordonnées ou depuis votre position actuelle
+• Celsius ou Fahrenheit, appliqué partout instantanément
+• Anglais, français, arabe et chinois simplifié, avec mise en page de droite à gauche en arabe
+
+SANS COMPTE, SANS PUBLICITÉ, SANS PISTAGE
+
+Il n'y a rien à quoi se connecter. Les prévisions viennent d'Open-Meteo, et si vous préférez faire passer les requêtes par votre propre serveur compatible Open-Meteo, les Réglages acceptent son adresse.
+
+Day Skies est open source, construit avec le framework Day : une seule base de code Rust qui se dessine avec les vrais widgets natifs de chaque plateforme. github.com/daybrite/Day-Skies
+
+Données météo par Open-Meteo.com (CC BY 4.0).

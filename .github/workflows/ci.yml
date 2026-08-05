@@ -25,6 +25,9 @@ jobs:
       scripts: scripts/weather.yaml
       launch-env: WEATHER_MOCK=1
       locales: en fr ar zh-CN
-      # Publish the web build to GitHub Pages on every push to main (empty tag-pattern → the
-      # default-branch mode). Native release assets still attach on vX.Y.Z tags, independently.
+      # website/site.toml makes the workflow build and deploy the full project site
+      # (https://daybrite.github.io/Day-Skies/) from the daybrite/daysite template on every push
+      # to main, with the web build hosted at /Day-Skies/webapp/. deploy-web stays on as the
+      # fallback: were website/ ever removed, the bare web app would return to the Pages root.
       deploy-web: true
+      daysite-version: main

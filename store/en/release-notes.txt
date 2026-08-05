@@ -1,0 +1,1 @@
+First public release. Condition-aware sky gradients, hourly and ten-day forecasts, detail cards, multiple cities, Celsius or Fahrenheit, and four languages.

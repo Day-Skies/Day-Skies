@@ -1,0 +1,12 @@
+# Store listing metadata that is NOT localized. The localized text lives in store/<locale>/.
+bundle-id = "dev.daybrite.dayskies"
+apple-category = "WEATHER"
+copyright = "2026 Daybrite"
+contact-email = "hello@daybrite.dev"
+review-notes = """
+Day Skies fetches forecasts from Open-Meteo (open-meteo.com), a free service that needs no API key,
+so the app works immediately with no configuration.
+
+Location permission is requested only if you tap "Use current location" on the Cities page.
+Declining leaves the app fully usable: add cities by name or by coordinates instead.
+"""

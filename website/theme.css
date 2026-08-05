@@ -1,0 +1,11 @@
+/* Day Skies site overrides — inlined after the template's styles, so anything here wins.
+   Kept to a whisper on purpose: the template carries the design; this file exists to prove
+   the seam and to hold whatever Day Skies wants to nudge later. */
+
+/* A sky-gradient wash behind the hero, matching the app's clear-day palette. */
+.rise h1 {
+  background: linear-gradient(105deg, #7ec3f0, #4a90d9 55%, #2d64a8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

@@ -1,0 +1,1 @@
+weather,forecast,hourly,10-day,temperature,rain,uv,sunrise,cities,open-meteo

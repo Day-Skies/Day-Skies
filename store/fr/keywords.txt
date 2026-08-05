@@ -1,0 +1,1 @@
+météo,prévisions,horaire,10 jours,température,pluie,uv,lever du soleil,villes,open-meteo

@@ -1,0 +1,1 @@
+Première version publique. Dégradés de ciel adaptés aux conditions, prévisions horaires et sur dix jours, cartes de détail, plusieurs villes, Celsius ou Fahrenheit, et quatre langues.

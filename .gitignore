@@ -19,3 +19,10 @@ DerivedData/
 
 # Logs
 *.log
+
+# The website is generated: the daysite template clone (local preview) and the data files the
+# pipeline synthesizes from Day.toml + store/ + release assets. Only site.toml and theme.css
+# are source.
+website/.daysite/
+website/appindex.json
+website/gallery-manifest.json
