@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" width="432" height="432">
+<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F80F0"/>
+      <stop offset="1" stop-color="#8FC4FF"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.42" cy="0.40" r="0.70">
+      <stop offset="0" stop-color="#FFE59A"/>
+      <stop offset="0.55" stop-color="#FDBE4A"/>
+      <stop offset="1" stop-color="#F59A24"/>
+    </radialGradient>
+    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="486" x2="512" y2="792">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E4EFFB"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(27.2,34) scale(0.40)">
+<g stroke="#FFD466" stroke-width="30" stroke-linecap="round">
+    <line x1="386" y1="196" x2="386" y2="132"/>
+    <line x1="235" y1="235" x2="190" y2="190"/>
+    <line x1="196" y1="386" x2="132" y2="386"/>
+    <line x1="235" y1="537" x2="190" y2="582"/>
+    <line x1="386" y1="576" x2="386" y2="640"/>
+    <line x1="537" y1="537" x2="582" y2="582"/>
+    <line x1="576" y1="386" x2="640" y2="386"/>
+    <line x1="537" y1="235" x2="582" y2="190"/>
+  </g>
+  <circle cx="386" cy="386" r="150" fill="url(#sun)"/>
+  <g fill="url(#cloud)">
+    <rect x="352" y="660" width="420" height="118" rx="59"/>
+    <circle cx="470" cy="678" r="104"/>
+    <circle cx="700" cy="676" r="112"/>
+    <circle cx="560" cy="608" r="118"/>
+    <circle cx="662" cy="628" r="86"/>
+  </g>
+  </g>
+</svg>

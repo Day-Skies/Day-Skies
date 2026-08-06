@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" width="432" height="432">
+<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F80F0"/>
+      <stop offset="1" stop-color="#8FC4FF"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.42" cy="0.40" r="0.70">
+      <stop offset="0" stop-color="#FFE59A"/>
+      <stop offset="0.55" stop-color="#FDBE4A"/>
+      <stop offset="1" stop-color="#F59A24"/>
+    </radialGradient>
+    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="486" x2="512" y2="792">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E4EFFB"/>
+    </linearGradient>
+  </defs>
+  <rect width="432" height="432" fill="url(#sky)"/>
+</svg>
