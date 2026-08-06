@@ -4,6 +4,7 @@
 # release pipeline; this file holds only what is genuinely site-specific.
 
 host = "https://daybrite.github.io/Day-Skies"
+locales = ["en", "fr", "ar", "zh-CN"]
 
 # The sky-blue the app's own gradients open with.
 accent-color = "#4A90D9"

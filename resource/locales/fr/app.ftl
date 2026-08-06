@@ -57,8 +57,6 @@ settings_host_hint = Les requêtes vont vers ce serveur compatible Open-Meteo �
 settings_save = Enregistrer et actualiser
 
 # Page de gestion des villes
-cities_title = Villes
-cities_caption = Ajoutez, modifiez ou supprimez les villes de votre liste.
 cities_list_section = Vos villes
 cities_add_section = Ajouter une ville
 cities_preset_label = Choisir une ville
@@ -99,11 +97,6 @@ settings_github = Code source sur GitHub
 # Réglages langue / apparence + le nom de la langue (res::locales::ALL)
 language_name = Français
 settings_language_section = Langue
-settings_language_label = Langue
-settings_system = Système
 settings_theme_section = Apparence
-settings_theme_label = Thème
-theme_light = Clair
-theme_dark = Sombre
 
 open_in_new_window = Ouvrir dans une nouvelle fenêtre

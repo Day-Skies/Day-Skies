@@ -57,8 +57,6 @@ settings_host_hint = تُرسل الطلبات إلى هذا الخادم الم
 settings_save = حفظ وتحديث
 
 # صفحة إدارة المدن
-cities_title = المدن
-cities_caption = أضف مدن قائمتك أو عدّلها أو أزلها.
 cities_list_section = مدنك
 cities_add_section = إضافة مدينة
 cities_preset_label = اختر مدينة
@@ -99,11 +97,6 @@ settings_github = الشيفرة المصدرية على GitHub
 # إعدادات اللغة والمظهر + اسم اللغة (res::locales::ALL)
 language_name = العربية
 settings_language_section = اللغة
-settings_language_label = اللغة
-settings_system = النظام
 settings_theme_section = المظهر
-settings_theme_label = السمة
-theme_light = فاتح
-theme_dark = داكن
 
 open_in_new_window = فتح في نافذة جديدة

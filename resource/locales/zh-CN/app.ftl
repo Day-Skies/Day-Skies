@@ -57,8 +57,6 @@ settings_host_hint = 请求将发送到此 Open-Meteo 兼容服务器 — 可填
 settings_save = 保存并刷新
 
 # 城市管理页面
-cities_title = 城市
-cities_caption = 添加、编辑或删除列表中的城市。
 cities_list_section = 你的城市
 cities_add_section = 添加城市
 cities_preset_label = 选择城市
@@ -99,11 +97,6 @@ settings_github = GitHub 源代码
 # 语言/外观设置 + 语言自称（res::locales::ALL）
 language_name = 简体中文
 settings_language_section = 语言
-settings_language_label = 语言
-settings_system = 系统
 settings_theme_section = 外观
-settings_theme_label = 主题
-theme_light = 浅色
-theme_dark = 深色
 
 open_in_new_window = 在新窗口中打开

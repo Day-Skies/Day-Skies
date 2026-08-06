@@ -128,30 +128,32 @@ pub fn settings_page() -> AnyPiece {
     let theme_row = day_piece_settings::appearance_picker(PREF_THEME);
 
     // The segmented picker has no ArkUI backend yet; HarmonyOS gets a native toggle instead.
-    #[cfg(not(target_env = "ohos"))]
-    let unit_row = labeled(
-        res::str::settings_unit_label(),
-        picker(
-            [
-                res::str::unit_celsius().format(),
-                res::str::unit_fahrenheit().format(),
-            ],
-            unit_sig,
-        )
-        .segmented()
-        .id("unit-picker"),
-    );
-    #[cfg(target_env = "ohos")]
+    // One id call for both variants — the branches are cfg-disjoint, so a single
+    // call site keeps the dayscript address stable AND keeps `day lint`'s duplicate-id check
+    // (which reads text, not cfg) from seeing two.
     let unit_row = {
-        let fahrenheit = Signal::new(unit_sig.get_untracked() == 1);
-        watch(
-            move || fahrenheit.get(),
-            move |on, _| unit_sig.set(if *on { 1 } else { 0 }),
+        #[cfg(not(target_env = "ohos"))]
+        let (unit_label, unit_control) = (
+            res::str::settings_unit_label(),
+            picker(
+                [
+                    res::str::unit_celsius().format(),
+                    res::str::unit_fahrenheit().format(),
+                ],
+                unit_sig,
+            )
+            .segmented(),
         );
-        labeled(
-            res::str::unit_fahrenheit(),
-            toggle(fahrenheit).id("unit-picker"),
-        )
+        #[cfg(target_env = "ohos")]
+        let (unit_label, unit_control) = {
+            let fahrenheit = Signal::new(unit_sig.get_untracked() == 1);
+            watch(
+                move || fahrenheit.get(),
+                move |on, _| unit_sig.set(if *on { 1 } else { 0 }),
+            );
+            (res::str::unit_fahrenheit(), toggle(fahrenheit))
+        };
+        labeled(unit_label, unit_control.id("unit-picker"))
     };
 
     let save = button(res::str::settings_save())
