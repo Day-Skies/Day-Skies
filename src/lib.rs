@@ -83,20 +83,22 @@ fn city_page(city: City) -> AnyPiece {
     }
     let id = city.id.clone();
     let title = city.name.clone();
-    page.context_menu(vec![menu_item(res::str::open_in_new_window().format()).action(move || {
-        let id = id.clone();
-        day::open_window(
-            None,
-            day::WindowOptions {
-                title: title.clone(),
-                size: Size::new(700.0, 800.0),
-                min_size: None,
-                app_name: None,
-            },
-            day::WindowKind::Normal,
-            move || city_page_for(&id),
-        );
-    })])
+    page.context_menu(vec![
+        menu_item(res::str::open_in_new_window().format()).action(move || {
+            let id = id.clone();
+            day::open_window(
+                None,
+                day::WindowOptions {
+                    title: title.clone(),
+                    size: Size::new(700.0, 800.0),
+                    min_size: None,
+                    app_name: None,
+                },
+                day::WindowKind::Normal,
+                move || city_page_for(&id),
+            );
+        }),
+    ])
 }
 
 /// The `.destination` for a data-driven city key: look the city up in the live list. A key that
