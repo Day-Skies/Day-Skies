@@ -1,36 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-<defs>
+  <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2F80F0"/>
-      <stop offset="1" stop-color="#8FC4FF"/>
+      <stop offset="0" stop-color="#274B8F"/>
+      <stop offset="0.55" stop-color="#4E93E6"/>
+      <stop offset="1" stop-color="#BFE0FF"/>
     </linearGradient>
-    <radialGradient id="sun" cx="0.42" cy="0.40" r="0.70">
-      <stop offset="0" stop-color="#FFE59A"/>
-      <stop offset="0.55" stop-color="#FDBE4A"/>
-      <stop offset="1" stop-color="#F59A24"/>
+    <radialGradient id="sun" cx="0.45" cy="0.42" r="0.72">
+      <stop offset="0" stop-color="#FFF3C4"/>
+      <stop offset="0.6" stop-color="#FFC94D"/>
+      <stop offset="1" stop-color="#F5A623"/>
     </radialGradient>
-    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="486" x2="512" y2="792">
+    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="470" x2="512" y2="800">
       <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#E4EFFB"/>
+      <stop offset="1" stop-color="#D9E7F8"/>
     </linearGradient>
   </defs>
+  <!-- Day icon master (docs/icons.md): full-bleed square backdrop, platforms mask it. -->
   
-<g id="day:foreground" stroke="#FFD466" stroke-width="30" stroke-linecap="round">
-    <line x1="386" y1="196" x2="386" y2="132"/>
-    <line x1="235" y1="235" x2="190" y2="190"/>
-    <line x1="196" y1="386" x2="132" y2="386"/>
-    <line x1="235" y1="537" x2="190" y2="582"/>
-    <line x1="386" y1="576" x2="386" y2="640"/>
-    <line x1="537" y1="537" x2="582" y2="582"/>
-    <line x1="576" y1="386" x2="640" y2="386"/>
-    <line x1="537" y1="235" x2="582" y2="190"/>
+  <g id="day:foreground">
+    <!-- The forecast sky itself: a warm sun slipping behind the day's weather. -->
+    <circle cx="430" cy="380" r="172" fill="url(#sun)"/>
+    <g fill="url(#cloud)">
+      <rect x="292" y="596" width="472" height="140" rx="70"/>
+      <circle cx="420" cy="592" r="112"/>
+      <circle cx="548" cy="540" r="132"/>
+      <circle cx="668" cy="596" r="104"/>
+    </g>
   </g>
-  <circle id="day:foreground-2" cx="386" cy="386" r="150" fill="url(#sun)"/>
-  <g id="day:foreground-3" fill="url(#cloud)">
-    <rect x="352" y="660" width="420" height="118" rx="59"/>
-    <circle cx="470" cy="678" r="104"/>
-    <circle cx="700" cy="676" r="112"/>
-    <circle cx="560" cy="608" r="118"/>
-    <circle cx="662" cy="628" r="86"/>
-  </g>
+  <!-- Single-color silhouette for themed/tinted icons (Android 13, Icon Composer Tinted):
+       solid paint only, VectorDrawable subset. Hidden so plain viewers show the icon as
+       shipped; the pipeline re-enables it. -->
+  
 </svg>

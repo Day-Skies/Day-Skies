@@ -1,21 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-<defs>
+  <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2F80F0"/>
-      <stop offset="1" stop-color="#8FC4FF"/>
+      <stop offset="0" stop-color="#274B8F"/>
+      <stop offset="0.55" stop-color="#4E93E6"/>
+      <stop offset="1" stop-color="#BFE0FF"/>
     </linearGradient>
-    <radialGradient id="sun" cx="0.42" cy="0.40" r="0.70">
-      <stop offset="0" stop-color="#FFE59A"/>
-      <stop offset="0.55" stop-color="#FDBE4A"/>
-      <stop offset="1" stop-color="#F59A24"/>
+    <radialGradient id="sun" cx="0.45" cy="0.42" r="0.72">
+      <stop offset="0" stop-color="#FFF3C4"/>
+      <stop offset="0.6" stop-color="#FFC94D"/>
+      <stop offset="1" stop-color="#F5A623"/>
     </radialGradient>
-    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="486" x2="512" y2="792">
+    <linearGradient id="cloud" gradientUnits="userSpaceOnUse" x1="512" y1="470" x2="512" y2="800">
       <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#E4EFFB"/>
+      <stop offset="1" stop-color="#D9E7F8"/>
     </linearGradient>
   </defs>
+  <!-- Day icon master (docs/icons.md): full-bleed square backdrop, platforms mask it. -->
   <rect id="day:background" width="1024" height="1024" fill="url(#sky)"/>
-
   
+  <!-- Single-color silhouette for themed/tinted icons (Android 13, Icon Composer Tinted):
+       solid paint only, VectorDrawable subset. Hidden so plain viewers show the icon as
+       shipped; the pipeline re-enables it. -->
   
 </svg>

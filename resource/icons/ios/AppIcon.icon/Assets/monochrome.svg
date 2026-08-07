@@ -16,10 +16,16 @@
     </linearGradient>
   </defs>
   <!-- Day icon master (docs/icons.md): full-bleed square backdrop, platforms mask it. -->
-  <rect id="day:background" width="1024" height="1024" fill="url(#sky)"/>
+  
   
   <!-- Single-color silhouette for themed/tinted icons (Android 13, Icon Composer Tinted):
        solid paint only, VectorDrawable subset. Hidden so plain viewers show the icon as
        shipped; the pipeline re-enables it. -->
-  
+  <g id="day:monochrome">
+    <circle cx="430" cy="380" r="172" fill="#000000"/>
+    <rect x="292" y="596" width="472" height="140" rx="70" fill="#000000"/>
+    <circle cx="420" cy="592" r="112" fill="#000000"/>
+    <circle cx="548" cy="540" r="132" fill="#000000"/>
+    <circle cx="668" cy="596" r="104" fill="#000000"/>
+  </g>
 </svg>
