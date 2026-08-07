@@ -4,8 +4,10 @@ Master art: `day-icon.svg` — a warm sun peeking behind a soft cumulus cloud on
 Sky `#2F80F0 → #8FC4FF`, sun `#FDBE4A` (amber, echoing the Day sunrise mark), cloud
 `#FFFFFF → #E4EFFB`. Full-bleed square; each platform applies its own mask/shape.
 
-Every raster below is generated from the SVGs by `scripts/gen-icons.sh` (rsvg-convert + magick),
-which also copies the committed platform assets into `platform/`. Edit an SVG, re-run the script.
+Every raster below is generated from the master by **`day icon`** (docs/icons.md): the master's
+top-level `day:background` / `day:foreground*` ids drive the Android adaptive split, and the
+committed `platform/` copies are synced in the same run. Edit the master, re-run `day icon`;
+`day icon --check` is the CI drift gate, and `icons.lock.json` records the generator.
 
 ## iOS (`ios/`)
 - `AppIcon-1024.png` — full-bleed square, **opaque** (no alpha, for App Store validation). The

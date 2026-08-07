@@ -1,0 +1,40 @@
+{
+  "generator": "day-cli 0.1.4 (resvg-0.45)",
+  "master": {
+    "path": "resource/icons/day-icon.svg",
+    "sha256": "aee572bfc78852c8a95f4c6b9b700effe4b6d7908980042fd1770592b6417ebe"
+  },
+  "outputs": {
+    "platform/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": "b329524844a31fcd15d03fb4167cc7ee6fff188dc061b32137bb67353e13db82",
+    "platform/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png": "cb70bd27cb3f3e98fa3728994b0cdf0c215043df4c6eb498228404fe9c654e75",
+    "platform/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": "1475065168c4aeeee8421417cc247ccf2279c571c9963e7e2a34665bc57ab3be",
+    "platform/ios/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png": "52ad0ee4bf9cbcf76fd2df83356d4a53c9bc87c603fc285b035a7898bde8ea16",
+    "platform/ohos/AppScope/resources/base/media/startIcon.png": "f81a780c33a3c0bcde38ea61f241a60ba183626b912ed325b89b1c7c9dc06877",
+    "platform/ohos/entry/src/main/resources/base/media/startIcon.png": "f81a780c33a3c0bcde38ea61f241a60ba183626b912ed325b89b1c7c9dc06877",
+    "resource/icons/android/ic_launcher-legacy-192.png": "b329524844a31fcd15d03fb4167cc7ee6fff188dc061b32137bb67353e13db82",
+    "resource/icons/android/ic_launcher_background.png": "cb70bd27cb3f3e98fa3728994b0cdf0c215043df4c6eb498228404fe9c654e75",
+    "resource/icons/android/ic_launcher_foreground.png": "1475065168c4aeeee8421417cc247ccf2279c571c9963e7e2a34665bc57ab3be",
+    "resource/icons/android/play-store-512.png": "f81a780c33a3c0bcde38ea61f241a60ba183626b912ed325b89b1c7c9dc06877",
+    "resource/icons/ios/AppIcon-1024.png": "52ad0ee4bf9cbcf76fd2df83356d4a53c9bc87c603fc285b035a7898bde8ea16",
+    "resource/icons/linux/day-icon-128.png": "a5e7335f46fccb3c9bb8856f6ee7507a7dfdc397edb3c76a2abbff4153108bd5",
+    "resource/icons/linux/day-icon-256.png": "a10090de58313615672a8695428ebd1f2028b5b177437f6f1ac6cee80065a49e",
+    "resource/icons/linux/day-icon-48.png": "5ffa907e21e3c80716ffc36e7a3be82b164a7d55c4ed37e8bbe701bb90d275c9",
+    "resource/icons/linux/day-icon-512.png": "f81a780c33a3c0bcde38ea61f241a60ba183626b912ed325b89b1c7c9dc06877",
+    "resource/icons/macos/day-icon-macos-1024.png": "be7da02ac2034b49edf99e3a0737fe3d53d8f531f4e7753a79d82b8ffb90355e",
+    "resource/icons/macos/day-icon-macos-128.png": "2fb707f4175f7d5d21dac7ca65c317a3127af7968f7d71c9546e3d9c7feeced7",
+    "resource/icons/macos/day-icon-macos-16.png": "37882fbf9503693370aaa9af3e079c756e0e65015d337a09afdce75735f1e5b5",
+    "resource/icons/macos/day-icon-macos-256.png": "1eaa4aa799859d9cae228f843ded7453d83afecd14fe5449ce5b12ce1441d304",
+    "resource/icons/macos/day-icon-macos-32.png": "257bda9c9da14da7ce9a0af778f2673fbd184a18d6fbf6c5eb4eb82d6ee688b4",
+    "resource/icons/macos/day-icon-macos-512.png": "c66f02a4fc2de73230ad848ea5661cfa7fe516d216594ca163dd1830b724f822",
+    "resource/icons/macos/day-icon.icns": "f833c2e15c256edfd6574acb4dab1d3d2ab651cabd00baf3756c5d4c93bb34fd",
+    "resource/icons/png/day-icon-1024.png": "52ad0ee4bf9cbcf76fd2df83356d4a53c9bc87c603fc285b035a7898bde8ea16",
+    "resource/icons/png/day-icon-128.png": "a5e7335f46fccb3c9bb8856f6ee7507a7dfdc397edb3c76a2abbff4153108bd5",
+    "resource/icons/png/day-icon-16.png": "e8a836e67bc60038971ab0bce6016980887dd5c7cfa2c92794e36eed4f2fcb51",
+    "resource/icons/png/day-icon-256.png": "a10090de58313615672a8695428ebd1f2028b5b177437f6f1ac6cee80065a49e",
+    "resource/icons/png/day-icon-32.png": "c78f3bad36bb166b9e75cdde0b911d903e567ee36887ca0db7920c76cbaec6ed",
+    "resource/icons/png/day-icon-512.png": "f81a780c33a3c0bcde38ea61f241a60ba183626b912ed325b89b1c7c9dc06877",
+    "resource/icons/png/day-icon-64.png": "70f69b7a083fe2221ead6f8e7535524d88ecc4cb2b07331c60240d09a6f77a19",
+    "resource/icons/windows/day-icon-256.png": "a10090de58313615672a8695428ebd1f2028b5b177437f6f1ac6cee80065a49e",
+    "resource/icons/windows/day.ico": "b210b87ddb509c043ecc7c1bcb4cf8f03dc76e4652e73929d79363d47ce1542b"
+  }
+}

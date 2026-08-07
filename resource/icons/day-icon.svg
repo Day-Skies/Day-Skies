@@ -14,8 +14,8 @@
       <stop offset="1" stop-color="#E4EFFB"/>
     </linearGradient>
   </defs>
-  <rect width="1024" height="1024" fill="url(#sky)"/>
-<g stroke="#FFD466" stroke-width="30" stroke-linecap="round">
+  <rect id="day:background" width="1024" height="1024" fill="url(#sky)"/>
+<g id="day:foreground" stroke="#FFD466" stroke-width="30" stroke-linecap="round">
     <line x1="386" y1="196" x2="386" y2="132"/>
     <line x1="235" y1="235" x2="190" y2="190"/>
     <line x1="196" y1="386" x2="132" y2="386"/>
@@ -25,8 +25,8 @@
     <line x1="576" y1="386" x2="640" y2="386"/>
     <line x1="537" y1="235" x2="582" y2="190"/>
   </g>
-  <circle cx="386" cy="386" r="150" fill="url(#sun)"/>
-  <g fill="url(#cloud)">
+  <circle id="day:foreground-2" cx="386" cy="386" r="150" fill="url(#sun)"/>
+  <g id="day:foreground-3" fill="url(#cloud)">
     <rect x="352" y="660" width="420" height="118" rx="59"/>
     <circle cx="470" cy="678" r="104"/>
     <circle cx="700" cy="676" r="112"/>
